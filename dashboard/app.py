@@ -1,5 +1,13 @@
+import plotly.express as px
 import streamlit as st
-from style import appliquer_style, afficher_menu, afficher_banniere, titre_section, carte_kpi
+from style import (
+    appliquer_style,
+    afficher_menu,
+    afficher_banniere,
+    titre_section,
+    carte_kpi,
+    styliser_graphique,
+)
 from donnees import (
     charger_donnees,
     filtrer_donnees,
@@ -56,7 +64,6 @@ titre_section(
     f"Fluide ≥ {SEUIL_FLUIDE} km/h · Dense entre {SEUIL_CONGESTION} et {SEUIL_FLUIDE} km/h · Congestion < {SEUIL_CONGESTION} km/h",
 )
 
-# 1) État global, d'après la vitesse moyenne de la sélection
 etat = etat_trafic(vitesse_moyenne)
 message = f"État global de la sélection : **{etat}** (vitesse moyenne {vitesse_moyenne:.1f} km/h)"
 
@@ -67,7 +74,6 @@ elif etat == "Dense":
 else:
     st.error(message, icon="🔴")
 
-# 2) Part du temps passé dans chaque état
 part_fluide = (df["speed_kmh"] >= SEUIL_FLUIDE).mean() * 100
 part_congestion = (df["speed_kmh"] < SEUIL_CONGESTION).mean() * 100
 part_dense = 100 - part_fluide - part_congestion
@@ -80,3 +86,34 @@ with a2:
     st.warning(f"**{part_dense:.1f} %** du temps en trafic dense", icon="🟠")
 with a3:
     st.error(f"**{part_congestion:.1f} %** du temps en congestion", icon="🔴")
+
+# Évolution du débit : niveau de détail adapté à la durée sélectionnée
+nb_jours = (df["datetime"].max() - df["datetime"].min()).days
+
+if nb_jours > 14:
+    frequence, libelle = "D", "moyenne par jour"
+elif nb_jours > 2:
+    frequence, libelle = "h", "moyenne par heure"
+else:
+    frequence, libelle = "5min", "mesures toutes les 5 minutes"
+
+evolution = (
+    df.set_index("datetime")["traffic_flow"]
+    .resample(frequence)
+    .mean()
+    .dropna()
+    .reset_index()
+)
+
+titre_section("Évolution du débit", f"Débit sur la sélection ({libelle}).")
+
+fig = px.line(evolution, x="datetime", y="traffic_flow", color_discrete_sequence=["#20A99F"])
+fig.add_hline(
+    y=debit_moyen,
+    line_dash="dot",
+    line_color="#9465C2",
+    annotation_text=f"Moyenne : {debit_moyen:.0f}",
+)
+fig = styliser_graphique(fig, "Débit de véhicules", "Véhicules / 5 min")
+
+st.plotly_chart(fig, width="stretch")

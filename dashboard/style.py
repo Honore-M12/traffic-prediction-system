@@ -434,3 +434,22 @@ def carte_kpi(label, valeur, pied, icone="▦", couleur="teal"):
 <div class="kpi-foot">{pied}</div>
 </div>
 """, unsafe_allow_html=True)
+    
+
+def styliser_graphique(fig, titre, titre_y, hauteur=320):
+    """Applique le style commun (inspiré de Mireille) à un graphique plotly."""
+    fig.update_layout(
+        template="plotly_white",
+        title=dict(text=titre, font=dict(size=12, color="#263A50"), x=0.02),
+        height=hauteur,
+        margin=dict(l=25, r=15, t=48, b=38),
+        font=dict(family="Arial", size=10, color="#6F8193"),
+        xaxis_title="",
+        yaxis_title=titre_y,
+        showlegend=False,
+        plot_bgcolor="white",
+        paper_bgcolor="white",
+    )
+    fig.update_xaxes(showgrid=False)
+    fig.update_yaxes(gridcolor="#EAF0F5", zeroline=False)
+    return fig
