@@ -67,3 +67,18 @@ def filtrer_donnees(df):
         st.stop()
 
     return df_filtre
+
+
+# Seuils de vitesse (km/h) définissant l'état du trafic
+SEUIL_FLUIDE = 90       # au-dessus : trafic fluide
+SEUIL_CONGESTION = 70   # en dessous : congestion ; entre les deux : trafic dense
+
+
+def etat_trafic(vitesse):
+    """Renvoie l'état du trafic ('Fluide', 'Dense' ou 'Congestion') selon une vitesse en km/h."""
+    if vitesse >= SEUIL_FLUIDE:
+        return "Fluide"
+    elif vitesse >= SEUIL_CONGESTION:
+        return "Dense"
+    else:
+        return "Congestion"

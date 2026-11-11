@@ -1,6 +1,12 @@
 import streamlit as st
 from style import appliquer_style, afficher_menu, afficher_banniere, titre_section, carte_kpi
-from donnees import charger_donnees, filtrer_donnees
+from donnees import (
+    charger_donnees,
+    filtrer_donnees,
+    etat_trafic,
+    SEUIL_FLUIDE,
+    SEUIL_CONGESTION,
+)
 
 st.set_page_config(
     page_title="Smart Traffic | Tableau de bord",
@@ -43,3 +49,34 @@ with k3:
     carte_kpi("Heure de pointe", f"{heure_pointe} h", "Débit moyen le plus élevé", icone="◷", couleur="purple")
 with k4:
     carte_kpi("Débit maximal", f"{debit_max}", "Véhicules / 5 min", icone="▲")
+
+# État du trafic : alertes vert / orange / rouge
+titre_section(
+    "État du trafic",
+    f"Fluide ≥ {SEUIL_FLUIDE} km/h · Dense entre {SEUIL_CONGESTION} et {SEUIL_FLUIDE} km/h · Congestion < {SEUIL_CONGESTION} km/h",
+)
+
+# 1) État global, d'après la vitesse moyenne de la sélection
+etat = etat_trafic(vitesse_moyenne)
+message = f"État global de la sélection : **{etat}** (vitesse moyenne {vitesse_moyenne:.1f} km/h)"
+
+if etat == "Fluide":
+    st.success(message, icon="🟢")
+elif etat == "Dense":
+    st.warning(message, icon="🟠")
+else:
+    st.error(message, icon="🔴")
+
+# 2) Part du temps passé dans chaque état
+part_fluide = (df["speed_kmh"] >= SEUIL_FLUIDE).mean() * 100
+part_congestion = (df["speed_kmh"] < SEUIL_CONGESTION).mean() * 100
+part_dense = 100 - part_fluide - part_congestion
+
+a1, a2, a3 = st.columns(3)
+
+with a1:
+    st.success(f"**{part_fluide:.1f} %** du temps en trafic fluide", icon="🟢")
+with a2:
+    st.warning(f"**{part_dense:.1f} %** du temps en trafic dense", icon="🟠")
+with a3:
+    st.error(f"**{part_congestion:.1f} %** du temps en congestion", icon="🔴")
