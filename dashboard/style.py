@@ -399,3 +399,38 @@ def afficher_menu(page_active):
     PROJECT VERSION 1.0
 </div>
 """, unsafe_allow_html=True)
+        
+
+# =========================================================
+# ÉLÉMENTS VISUELS RÉUTILISABLES
+# =========================================================
+
+def afficher_banniere(titre, description, surtitre="SMART TRAFFIC"):
+    """Affiche le bandeau bleu en haut de la page."""
+    st.markdown(f"""
+<div class="hero">
+<div class="hero-content">
+<div class="hero-eyebrow">{surtitre}</div>
+<div class="hero-title">{titre}</div>
+<div class="hero-description">{description}</div>
+</div>
+</div>
+""", unsafe_allow_html=True)
+
+
+def titre_section(titre, sous_titre=None):
+    """Affiche un titre de section, avec un sous-titre facultatif."""
+    st.markdown(f'<div class="section-title">{titre}</div>', unsafe_allow_html=True)
+    if sous_titre:
+        st.markdown(f'<div class="section-subtitle">{sous_titre}</div>', unsafe_allow_html=True)
+
+
+def carte_kpi(label, valeur, pied, icone="▦", couleur="teal"):
+    """Affiche une carte KPI (couleurs possibles : teal, blue, purple)."""
+    st.markdown(f"""
+<div class="kpi-card">
+<div class="kpi-header"><div class="kpi-icon {couleur}">{icone}</div><div class="kpi-label">{label}</div></div>
+<div class="kpi-value">{valeur}</div>
+<div class="kpi-foot">{pied}</div>
+</div>
+""", unsafe_allow_html=True)
