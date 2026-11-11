@@ -1,6 +1,6 @@
 import streamlit as st
 from style import appliquer_style, afficher_menu, afficher_banniere, titre_section, carte_kpi
-from donnees import charger_donnees
+from donnees import charger_donnees, filtrer_donnees
 
 st.set_page_config(
     page_title="Smart Traffic | Tableau de bord",
@@ -18,16 +18,20 @@ afficher_banniere(
     surtitre="SMART TRAFFIC / OVERVIEW",
 )
 
-# Chargement et calcul des indicateurs
+# Chargement des données et filtres
 df = charger_donnees()
 
+titre_section("Filtres")
+df = filtrer_donnees(df)
+
+# Calcul des indicateurs sur les données filtrées
 debit_moyen = df["traffic_flow"].mean()
 vitesse_moyenne = df["speed_kmh"].mean()
 heure_pointe = df.groupby("hour")["traffic_flow"].mean().idxmax()
 debit_max = df["traffic_flow"].max()
 
 # Affichage des KPI
-titre_section("Indicateurs clés", "Calculés sur l'ensemble des données (1er février au 31 mai 2020).")
+titre_section("Indicateurs clés", f"Calculés sur {len(df):,} mesures de 5 minutes.".replace(",", " "))
 
 k1, k2, k3, k4 = st.columns(4)
 
