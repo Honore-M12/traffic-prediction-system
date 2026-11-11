@@ -24,8 +24,7 @@ HISTORIQUE = ["traffic_flow_lag_1", "traffic_flow_lag_2", "traffic_flow_lag_3",
 CATEGORIELLES = ["weather_condition"]
 CIBLE = "traffic_flow"
 
-# Nombre minimal d'observations passées nécessaires pour calculer toutes les variables d'historique
-HISTORIQUE_MIN = 37   # flow_mean_36 utilise les 36 valeurs précédant l'instant prédit (+1 pour lag_1)
+HISTORIQUE_MIN = 36   # valeurs passées nécessaires (flow_mean_36)
 
 
 def ajouter_variables_cycliques(df: pd.DataFrame) -> pd.DataFrame:
@@ -78,3 +77,66 @@ def charger_donnees_modele(dossier=None):
     full = ajouter_variables_historique(ajouter_variables_cycliques(full))
     full = full.dropna(subset=HISTORIQUE)
     return tuple(full[full["jeu"] == n].drop(columns="jeu").reset_index(drop=True) for n in noms)
+
+
+# ----------------------------------------------------------------------------
+# Colonnes brutes attendues par le modèle et pipeline
+# ----------------------------------------------------------------------------
+COLONNES_ENTREE = (["hour", "minute", "week_day", "holidays", "is_weekend"]
+                   + METEO + CATEGORIELLES + HISTORIQUE)
+
+
+def faire_pipeline(modele, normaliser: bool = True):
+    """Pipeline complète : variables cycliques, normalisation / One-Hot, puis modèle.
+
+    Elle accepte les COLONNES BRUTES (COLONNES_ENTREE) : hour, minute, week_day, etc.
+    Le dashboard n'a donc pas à calculer les sinus/cosinus lui-même.
+    normaliser=False pour les modèles à base d'arbres.
+    """
+    from sklearn.compose import ColumnTransformer
+    from sklearn.pipeline import Pipeline
+    from sklearn.preprocessing import FunctionTransformer, OneHotEncoder, StandardScaler
+
+    numeriques = METEO + CALENDRIER + HISTORIQUE
+    prep = ColumnTransformer([
+        ("num", StandardScaler() if normaliser else "passthrough", numeriques),
+        ("cat", OneHotEncoder(handle_unknown="ignore"), CATEGORIELLES),
+    ])
+    return Pipeline([
+        ("cyc", FunctionTransformer(ajouter_variables_cycliques, validate=False)),
+        ("prep", prep),
+        ("modele", modele),
+    ])
+
+
+def construire_entree(historique: pd.DataFrame, instant, temp_celsius: float, wind_speed_kmh: float,
+                      precip_mm: float, weather_condition: str, ferie: bool = False) -> pd.DataFrame:
+    """Construit UNE ligne d'entrée du modèle pour l'instant demandé.
+
+    historique : observations récentes AVANT `instant`, au pas de 5 minutes, triées par date,
+                 avec les colonnes `traffic_flow` et `speed_kmh` (au moins HISTORIQUE_MIN lignes).
+    instant    : date et heure de la prédiction.
+    ferie      : True si c'est un jour férié. Comme dans le jeu de données d'origine,
+                 `holidays` vaut 1 aussi pour tous les week-ends.
+    """
+    if len(historique) < HISTORIQUE_MIN:
+        raise ValueError(f"Il faut au moins {HISTORIQUE_MIN} observations passées, "
+                         f"{len(historique)} fournies.")
+    instant = pd.Timestamp(instant)
+
+    # On ajoute une ligne "inconnue" à la fin : ses variables d'historique ne dépendent que du passé
+    h = historique[["traffic_flow", "speed_kmh"]].tail(HISTORIQUE_MIN).reset_index(drop=True)
+    h.loc[len(h)] = [np.nan, np.nan]
+    ligne = ajouter_variables_historique(h).iloc[[-1]][HISTORIQUE].reset_index(drop=True)
+
+    jour = instant.isoweekday()          # 1 = lundi ... 7 = dimanche (même codage que le jeu de données)
+    ligne["hour"] = instant.hour
+    ligne["minute"] = instant.minute
+    ligne["week_day"] = jour
+    ligne["is_weekend"] = int(jour >= 6)
+    ligne["holidays"] = int(bool(ferie) or jour >= 6)
+    ligne["temp_celsius"] = temp_celsius
+    ligne["wind_speed_kmh"] = wind_speed_kmh
+    ligne["precip_mm"] = precip_mm
+    ligne["weather_condition"] = weather_condition
+    return ligne[COLONNES_ENTREE]
