@@ -1,0 +1,64 @@
+{
+  "A": {
+    "modele": "lightgbm",
+    "fichier": "best_model_A.pkl",
+    "variables_entree": [
+      "temp_celsius",
+      "wind_speed_kmh",
+      "precip_mm",
+      "holidays",
+      "is_weekend",
+      "hour_sin",
+      "hour_cos",
+      "minute_sin",
+      "minute_cos",
+      "weekday_sin",
+      "weekday_cos",
+      "traffic_flow_lag_1",
+      "traffic_flow_lag_3",
+      "weather_condition"
+    ],
+    "hyperparametres": {
+      "learning_rate": 0.05,
+      "max_depth": 5,
+      "n_estimators": 100
+    },
+    "MAE_validation": 20.084,
+    "MAE_test": 21.025,
+    "R2_test": 0.972
+  },
+  "B": {
+    "modele": "lightgbm",
+    "fichier": "best_model_B.pkl",
+    "variables_entree": [
+      "temp_celsius",
+      "wind_speed_kmh",
+      "precip_mm",
+      "holidays",
+      "is_weekend",
+      "hour_sin",
+      "hour_cos",
+      "minute_sin",
+      "minute_cos",
+      "weekday_sin",
+      "weekday_cos",
+      "weather_condition"
+    ],
+    "hyperparametres": {
+      "learning_rate": 0.05,
+      "max_depth": 5,
+      "n_estimators": 300
+    },
+    "MAE_validation": 60.899,
+    "MAE_test": 56.064,
+    "R2_test": 0.832
+  },
+  "versions": {
+    "python": "3.12.10",
+    "scikit-learn": "1.9.1",
+    "lightgbm": "4.7.0",
+    "pandas": "3.1.1",
+    "numpy": "2.5.4"
+  },
+  "graine_aleatoire": 42
+}
