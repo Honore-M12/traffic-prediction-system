@@ -1,64 +1,60 @@
 {
-  "A": {
-    "modele": "lightgbm",
-    "fichier": "best_model_A.pkl",
-    "variables_entree": [
-      "temp_celsius",
-      "wind_speed_kmh",
-      "precip_mm",
-      "holidays",
-      "is_weekend",
-      "hour_sin",
-      "hour_cos",
-      "minute_sin",
-      "minute_cos",
-      "weekday_sin",
-      "weekday_cos",
-      "traffic_flow_lag_1",
-      "traffic_flow_lag_3",
-      "weather_condition"
-    ],
-    "hyperparametres": {
-      "learning_rate": 0.05,
-      "max_depth": 5,
-      "n_estimators": 100
-    },
-    "MAE_validation": 20.084,
-    "MAE_test": 21.025,
-    "R2_test": 0.972
+  "modele": "regression_lineaire",
+  "fichier": "best_model.pkl",
+  "description": "Prédit traffic_flow (véhicules par 5 min) à partir de l'historique récent, du calendrier et de la météo. Pipeline complète à colonnes brutes, sortie bornée à 0.",
+  "entrainement": "train + validation réunis ; régression linéaire sans hyperparamètre",
+  "variables_entree": [
+    "hour",
+    "minute",
+    "week_day",
+    "holidays",
+    "is_weekend",
+    "temp_celsius",
+    "wind_speed_kmh",
+    "precip_mm",
+    "weather_condition",
+    "traffic_flow_lag_1",
+    "traffic_flow_lag_2",
+    "traffic_flow_lag_3",
+    "traffic_flow_lag_6",
+    "traffic_flow_lag_12",
+    "flow_mean_12",
+    "flow_mean_36",
+    "flow_diff",
+    "speed_lag_1",
+    "speed_lag_3"
+  ],
+  "conventions": {
+    "week_day": "1 = lundi ... 7 = dimanche (isoweekday)",
+    "holidays": "1 pour un jour férié et pour tous les week-ends",
+    "pas_de_temps": "5 minutes",
+    "historique_minimum": 36,
+    "usage": "from src.features import construire_entree, COLONNES_ENTREE ; joblib.load('models/best_model.pkl').predict(construire_entree(...))"
   },
-  "B": {
-    "modele": "lightgbm",
-    "fichier": "best_model_B.pkl",
-    "variables_entree": [
-      "temp_celsius",
-      "wind_speed_kmh",
-      "precip_mm",
-      "holidays",
-      "is_weekend",
-      "hour_sin",
-      "hour_cos",
-      "minute_sin",
-      "minute_cos",
-      "weekday_sin",
-      "weekday_cos",
-      "weather_condition"
-    ],
-    "hyperparametres": {
-      "learning_rate": 0.05,
-      "max_depth": 5,
-      "n_estimators": 300
-    },
-    "MAE_validation": 60.899,
-    "MAE_test": 56.064,
-    "R2_test": 0.832
+  "performances_validation": {
+    "MAE": 19.414668620622813,
+    "MAE_persistance": 22.469079073329503
+  },
+  "performances_test": {
+    "MAE": 19.99059198216374,
+    "RMSE": 27.921861316743787,
+    "R2": 0.9740373327822311,
+    "WAPE_pct": 4.920354715148225,
+    "biais": 0.5926960196083524,
+    "gain_vs_persistance_pct": 13.11909772848281
+  },
+  "temps_inference_ms": 16.42,
+  "seuils_niveaux_trafic": {
+    "faible_jusqu_a": 303.0,
+    "moyen_jusqu_a": 537.0,
+    "definition": "tiers du débit du train (véhicules par 5 min)"
   },
   "versions": {
     "python": "3.12.10",
-    "scikit-learn": "1.9.1",
-    "lightgbm": "4.7.0",
+    "numpy": "2.5.4",
     "pandas": "3.1.1",
-    "numpy": "2.5.4"
+    "scikit-learn": "1.9.1"
   },
-  "graine_aleatoire": 42
+  "graine_aleatoire": 42,
+  "date_generation": "2026-11-13T09:20:21"
 }

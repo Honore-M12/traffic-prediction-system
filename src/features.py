@@ -140,3 +140,27 @@ def construire_entree(historique: pd.DataFrame, instant, temp_celsius: float, wi
     ligne["precip_mm"] = precip_mm
     ligne["weather_condition"] = weather_condition
     return ligne[COLONNES_ENTREE]
+
+
+# ----------------------------------------------------------------------------
+# Modèle final : sortie bornée
+# ----------------------------------------------------------------------------
+from sklearn.base import BaseEstimator, RegressorMixin, clone
+
+
+class RegresseurBorne(BaseEstimator, RegressorMixin):
+    """Enveloppe un régresseur et borne ses prédictions (par défaut : jamais de débit négatif).
+
+    Utilisé pour le modèle livré : une régression linéaire peut, en théorie, prédire un débit négatif.
+    """
+
+    def __init__(self, regressor=None, minimum=0.0):
+        self.regressor = regressor
+        self.minimum = minimum
+
+    def fit(self, X, y):
+        self.regressor_ = clone(self.regressor).fit(X, y)
+        return self
+
+    def predict(self, X):
+        return np.maximum(self.regressor_.predict(X), self.minimum)
