@@ -1,0 +1,11 @@
+scope,indicator,label,unit,fixed,ai,gain_pct
+global,avg_wait_s,Temps d'attente moyen,s/véh,11.282,8.4,25.6
+global,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,8.687,6.216,28.4
+global,avg_speed_kmh,Vitesse moyenne,km/h,34.692,36.707,5.8
+global,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.769,0.648,15.8
+global,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,167.327,159.348,4.8
+2020-05-19,avg_wait_s,Temps d'attente moyen,s/véh,11.282,8.4,25.6
+2020-05-19,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,8.687,6.216,28.4
+2020-05-19,avg_speed_kmh,Vitesse moyenne,km/h,34.692,36.707,5.8
+2020-05-19,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.769,0.648,15.8
+2020-05-19,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,167.327,159.348,4.8
