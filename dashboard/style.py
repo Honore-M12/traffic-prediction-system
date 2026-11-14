@@ -1,7 +1,32 @@
 import streamlit as st
+import base64
+from pathlib import Path
 
 # =========================================================
-# STYLE CSS COMMUN À TOUTES LES PAGES (design de Mireille)
+# CONFIGURATION DU LOGO
+# =========================================================
+
+DOSSIER_STYLE = Path(__file__).resolve().parent
+LOGO_PATH = DOSSIER_STYLE / "assets" / "feu-de-circulation.png"
+
+
+def charger_logo():
+    if LOGO_PATH.exists():
+        with open(LOGO_PATH, "rb") as fichier:
+            image_base64 = base64.b64encode(
+                fichier.read()
+            ).decode("utf-8")
+
+        return f"data:image/png;base64,{image_base64}"
+
+    return None
+
+
+LOGO_BASE64 = charger_logo()
+
+
+# =========================================================
+# STYLE CSS COMMUN
 # =========================================================
 
 CSS = """
@@ -25,10 +50,7 @@ header[data-testid="stHeader"] {
     background: transparent !important;
 }
 
-[data-testid="stToolbar"] {
-    display: none !important;
-}
-
+[data-testid="stToolbar"],
 [data-testid="stDecoration"] {
     display: none !important;
 }
@@ -72,7 +94,15 @@ header[data-testid="stHeader"] {
     gap: 9px;
 }
 
-.brand-logo {
+.brand-logo-img {
+    width: 35px;
+    height: 35px;
+    object-fit: contain;
+    display: block;
+    flex-shrink: 0;
+}
+
+.brand-fallback {
     width: 35px;
     height: 35px;
     border-radius: 8px;
@@ -83,6 +113,7 @@ header[data-testid="stHeader"] {
     color: white;
     font-size: 18px;
     font-weight: 800;
+    flex-shrink: 0;
 }
 
 .brand-name {
@@ -356,7 +387,6 @@ def appliquer_style():
 # MENU LATÉRAL COMMUN
 # =========================================================
 
-# Les 6 pages du dashboard : (fichier, nom affiché, icône)
 PAGES = [
     ("app.py", "Tableau de bord", ":material/dashboard:"),
     ("pages/2_Exploration.py", "Exploration", ":material/query_stats:"),
@@ -368,38 +398,67 @@ PAGES = [
 
 
 def afficher_menu(page_active):
-    """Affiche le menu latéral. page_active = nom de la page où l'on se trouve."""
+    """Affiche le menu latéral commun."""
+
     with st.sidebar:
 
-        # Logo et nom de la plateforme
-        st.markdown("""
-<div class="brand-container">
-    <div class="brand-row">
-        <div class="brand-logo">S</div>
-        <div class="brand-name">Smart Traffic</div>
-    </div>
-    <div class="brand-subtitle">Traffic Intelligence Platform</div>
-</div>
-""", unsafe_allow_html=True)
+        if LOGO_BASE64:
+            logo_html = (
+                '<img class="brand-logo-img" '
+                f'src="{LOGO_BASE64}" '
+                'alt="Smart Traffic">'
+            )
+        else:
+            logo_html = '<div class="brand-fallback">S</div>'
 
-        st.markdown('<div class="nav-heading">NAVIGATION PRINCIPALE</div>', unsafe_allow_html=True)
+        # HTML sans indentation parasite
+        brand_html = (
+            '<div class="brand-container">'
+            '<div class="brand-row">'
+            f'{logo_html}'
+            '<div class="brand-name">Smart Traffic</div>'
+            '</div>'
+            '<div class="brand-subtitle">'
+            'Traffic Intelligence Platform'
+            '</div>'
+            '</div>'
+        )
 
-        # Un lien par page, sauf la page active qui est surlignée
+        st.markdown(
+            brand_html,
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            '<div class="nav-heading">NAVIGATION PRINCIPALE</div>',
+            unsafe_allow_html=True
+        )
+
         for fichier, nom, icone in PAGES:
-            if nom == page_active:
-                st.markdown(f'<div class="sidebar-active">▦ &nbsp; {nom}</div>', unsafe_allow_html=True)
-            else:
-                st.page_link(fichier, label=nom, icon=icone)
 
-        # Pied du menu
-        st.markdown("""
-<div class="sidebar-footer">
-    <strong style="color:#DCE7F0;">SMART TRAFFIC</strong><br>
-    Machine Learning & Traffic Analysis<br>
-    PROJECT VERSION 1.0
-</div>
-""", unsafe_allow_html=True)
-        
+            if nom == page_active:
+                st.markdown(
+                    f'<div class="sidebar-active">▦ &nbsp; {nom}</div>',
+                    unsafe_allow_html=True
+                )
+            else:
+                st.page_link(
+                    fichier,
+                    label=nom,
+                    icon=icone
+                )
+
+        st.markdown(
+            """
+            <div class="sidebar-footer">
+                <strong style="color:#DCE7F0;">SMART TRAFFIC</strong><br>
+                Machine Learning & Traffic Analysis<br>
+                PROJECT VERSION 1.0
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
 
 # =========================================================
 # ÉLÉMENTS VISUELS RÉUTILISABLES
@@ -407,30 +466,47 @@ def afficher_menu(page_active):
 
 def afficher_banniere(titre, description, surtitre="SMART TRAFFIC"):
     """Affiche le bandeau bleu en haut de la page."""
-    st.markdown(f"""
-<div class="hero">
-<div class="hero-content">
-<div class="hero-eyebrow">{surtitre}</div>
-<div class="hero-title">{titre}</div>
-<div class="hero-description">{description}</div>
-</div>
-</div>
-""", unsafe_allow_html=True)
+
+    html = (
+        '<div class="hero">'
+        '<div class="hero-content">'
+        f'<div class="hero-eyebrow">{surtitre}</div>'
+        f'<div class="hero-title">{titre}</div>'
+        f'<div class="hero-description">{description}</div>'
+        '</div>'
+        '</div>'
+    )
+
+    st.markdown(html, unsafe_allow_html=True)
 
 
 def titre_section(titre, sous_titre=None):
-    """Affiche un titre de section, avec un sous-titre facultatif."""
-    st.markdown(f'<div class="section-title">{titre}</div>', unsafe_allow_html=True)
+    """Affiche un titre de section."""
+
+    st.markdown(
+        f'<div class="section-title">{titre}</div>',
+        unsafe_allow_html=True
+    )
+
     if sous_titre:
-        st.markdown(f'<div class="section-subtitle">{sous_titre}</div>', unsafe_allow_html=True)
+        st.markdown(
+            f'<div class="section-subtitle">{sous_titre}</div>',
+            unsafe_allow_html=True
+        )
 
 
 def carte_kpi(label, valeur, pied, icone="▦", couleur="teal"):
-    """Affiche une carte KPI (couleurs possibles : teal, blue, purple)."""
-    st.markdown(f"""
-<div class="kpi-card">
-<div class="kpi-header"><div class="kpi-icon {couleur}">{icone}</div><div class="kpi-label">{label}</div></div>
-<div class="kpi-value">{valeur}</div>
-<div class="kpi-foot">{pied}</div>
-</div>
-""", unsafe_allow_html=True)
+    """Affiche une carte KPI."""
+
+    html = (
+        '<div class="kpi-card">'
+        '<div class="kpi-header">'
+        f'<div class="kpi-icon {couleur}">{icone}</div>'
+        f'<div class="kpi-label">{label}</div>'
+        '</div>'
+        f'<div class="kpi-value">{valeur}</div>'
+        f'<div class="kpi-foot">{pied}</div>'
+        '</div>'
+    )
+
+    st.markdown(html, unsafe_allow_html=True)
