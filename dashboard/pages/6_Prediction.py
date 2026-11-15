@@ -680,12 +680,15 @@ with st.expander("Informations sur le fonctionnement"):
     )
 
 
-# ============================================================
-# FOOTER
-# ============================================================
+# =========================================================
+# 10. PIED DE PAGE
+# =========================================================
 
-st.markdown("---")
-
-st.caption(
-    "SMART TRAFFIC — TRAFFIC INTELLIGENCE PLATFORM"
+st.markdown(
+    """
+    <div class="dashboard-footer">
+        SMART TRAFFIC · SUPERVISION ET ANALYSE DU TRAFIC ROUTIER
+    </div>
+    """,
+    unsafe_allow_html=True,
 )

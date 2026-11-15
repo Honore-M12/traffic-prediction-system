@@ -469,3 +469,16 @@ st.dataframe(
     use_container_width=True,
     hide_index=True
 )
+
+# =========================================================
+# 10. PIED DE PAGE
+# =========================================================
+
+st.markdown(
+    """
+    <div class="dashboard-footer">
+        SMART TRAFFIC · SUPERVISION ET ANALYSE DU TRAFIC ROUTIER
+    </div>
+    """,
+    unsafe_allow_html=True,
+)

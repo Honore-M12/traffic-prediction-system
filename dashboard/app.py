@@ -24,7 +24,7 @@ from donnees import (
 # =========================================================
 
 st.set_page_config(
-    page_title="Smart Traffic | Tableau de bord",
+    page_title="Smart Traffic | Supervision",
     page_icon="🚦",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -38,32 +38,41 @@ st.set_page_config(
 appliquer_style()
 afficher_menu("Tableau de bord")
 
-afficher_banniere(
-    "Vue d'ensemble du trafic",
-    "Indicateurs clés du trafic sur la Ventura Highway (Los Angeles), février à mai 2020.",
-    surtitre="SMART TRAFFIC / OVERVIEW",
-)
+
+# =========================================================
+# 3. RÉSERVATION DE LA BANNIÈRE
+# =========================================================
+
+# On réserve son emplacement avant les filtres.
+# Elle sera remplie après le filtrage pour afficher
+# automatiquement les dates réellement sélectionnées.
+
+zone_banniere = st.empty()
 
 
 # =========================================================
-# 3. CHARGEMENT DES DONNÉES
+# 4. CHARGEMENT DES DONNÉES ET FILTRES
 # =========================================================
 
 df = charger_donnees()
 
-titre_section("Filtres")
+titre_section("Période et paramètres")
 
 df = filtrer_donnees(df)
 
+
 # Vérification des données après filtrage
+
 if df.empty:
     st.warning(
-        "Aucune donnée disponible pour les filtres sélectionnés. "
-        "Veuillez modifier vos critères."
+        "Aucune donnée disponible pour les critères sélectionnés. "
+        "Veuillez modifier les filtres."
     )
     st.stop()
 
+
 # Vérification des colonnes nécessaires
+
 colonnes_requises = [
     "datetime",
     "traffic_flow",
@@ -79,14 +88,35 @@ colonnes_manquantes = [
 
 if colonnes_manquantes:
     st.error(
-        "Colonnes manquantes dans les données : "
+        "Certaines informations sont absentes des données : "
         + ", ".join(colonnes_manquantes)
     )
     st.stop()
 
 
 # =========================================================
-# 4. CALCUL DES INDICATEURS
+# 5. AFFICHAGE DE LA BANNIÈRE
+# =========================================================
+
+date_debut = df["datetime"].min()
+date_fin = df["datetime"].max()
+
+periode = (
+    f"Du {date_debut.strftime('%d/%m/%Y')} "
+    f"au {date_fin.strftime('%d/%m/%Y')}"
+)
+
+with zone_banniere.container():
+
+    afficher_banniere(
+        "Vue d'ensemble du trafic",
+        f"Analyse des conditions de circulation sur la période sélectionnée : {periode}.",
+        surtitre="SUPERVISION ROUTIÈRE",
+    )
+
+
+# =========================================================
+# 6. CALCUL DES INDICATEURS
 # =========================================================
 
 debit_moyen = df["traffic_flow"].mean()
@@ -103,12 +133,12 @@ debit_max = df["traffic_flow"].max()
 
 
 # =========================================================
-# 5. AFFICHAGE DES KPI
+# 7. INDICATEURS PRINCIPAUX
 # =========================================================
 
 titre_section(
-    "Indicateurs clés",
-    f"Calculés sur {len(df):,} mesures de 5 minutes.".replace(",", " ")
+    "Indicateurs principaux",
+    f"{len(df):,} mesures de circulation analysées".replace(",", " ")
 )
 
 k1, k2, k3, k4 = st.columns(4)
@@ -117,25 +147,27 @@ with k1:
     carte_kpi(
         "Débit moyen",
         f"{debit_moyen:.0f}",
-        "Véhicules / 5 min"
+        "Véhicules / 5 min",
+        icone="▦",
+        couleur="teal",
     )
 
 with k2:
     carte_kpi(
         "Vitesse moyenne",
         f"{vitesse_moyenne:.1f} km/h",
-        "Sur la période",
+        "Sur la période sélectionnée",
         icone="↗",
-        couleur="blue"
+        couleur="blue",
     )
 
 with k3:
     carte_kpi(
         "Heure de pointe",
         f"{heure_pointe} h",
-        "Débit moyen le plus élevé",
+        "Heure de débit moyen maximal",
         icone="◷",
-        couleur="purple"
+        couleur="purple",
     )
 
 with k4:
@@ -143,42 +175,58 @@ with k4:
         "Débit maximal",
         f"{debit_max:.0f}",
         "Véhicules / 5 min",
-        icone="▲"
+        icone="▲",
+        couleur="teal",
     )
 
 
 # =========================================================
-# 6. ÉTAT GLOBAL DU TRAFIC
+# 8. CONDITIONS DE CIRCULATION
 # =========================================================
 
 titre_section(
-    "État du trafic",
+    "Conditions de circulation",
     (
-        f"Fluide ≥ {SEUIL_FLUIDE} km/h · "
-        f"Dense entre {SEUIL_CONGESTION} et {SEUIL_FLUIDE} km/h · "
-        f"Congestion < {SEUIL_CONGESTION} km/h"
+        f"Fluide : ≥ {SEUIL_FLUIDE} km/h · "
+        f"Dense : {SEUIL_CONGESTION} à {SEUIL_FLUIDE} km/h · "
+        f"Congestion : < {SEUIL_CONGESTION} km/h"
     )
 )
 
 etat = etat_trafic(vitesse_moyenne)
 
-message = (
-    f"État global de la sélection : **{etat}** "
-    f"(vitesse moyenne {vitesse_moyenne:.1f} km/h)"
-)
+col_etat, col_vitesse = st.columns([2, 1])
 
-if etat == "Fluide":
-    st.success(message, icon="🟢")
+with col_etat:
 
-elif etat == "Dense":
-    st.warning(message, icon="🟠")
+    if etat == "Fluide":
+        st.success(
+            "Conditions de circulation fluides",
+            icon="🟢",
+        )
 
-else:
-    st.error(message, icon="🔴")
+    elif etat == "Dense":
+        st.warning(
+            "Conditions de circulation denses",
+            icon="🟠",
+        )
+
+    else:
+        st.error(
+            "Congestion détectée",
+            icon="🔴",
+        )
+
+with col_vitesse:
+
+    st.metric(
+        "Vitesse moyenne constatée",
+        f"{vitesse_moyenne:.1f} km/h",
+    )
 
 
 # =========================================================
-# 7. RÉPARTITION DES ÉTATS DU TRAFIC
+# 9. RÉPARTITION DES CONDITIONS DE CIRCULATION
 # =========================================================
 
 part_fluide = (
@@ -191,51 +239,63 @@ part_congestion = (
 
 part_dense = 100 - part_fluide - part_congestion
 
+
+titre_section(
+    "Répartition du trafic",
+    "Proportion des observations selon les conditions de circulation.",
+)
+
 a1, a2, a3 = st.columns(3)
 
 with a1:
-    st.success(
-        f"**{part_fluide:.1f} %** du temps en trafic fluide",
-        icon="🟢"
+    carte_kpi(
+        "Trafic fluide",
+        f"{part_fluide:.1f} %",
+        "Part des observations",
+        icone="●",
+        couleur="teal",
     )
 
 with a2:
-    st.warning(
-        f"**{part_dense:.1f} %** du temps en trafic dense",
-        icon="🟠"
+    carte_kpi(
+        "Trafic dense",
+        f"{part_dense:.1f} %",
+        "Part des observations",
+        icone="●",
+        couleur="blue",
     )
 
 with a3:
-    st.error(
-        f"**{part_congestion:.1f} %** du temps en congestion",
-        icon="🔴"
+    carte_kpi(
+        "Congestion",
+        f"{part_congestion:.1f} %",
+        "Part des observations",
+        icone="●",
+        couleur="purple",
     )
 
 
 # =========================================================
-# 8. ÉVOLUTION TEMPORELLE DU DÉBIT
+# 10. ÉVOLUTION TEMPORELLE DU DÉBIT
 # =========================================================
 
-# Calcul de la durée de la période sélectionnée
 nb_jours = (
-    df["datetime"].max() - df["datetime"].min()
+    date_fin - date_debut
 ).days
 
-# Adaptation de la fréquence selon la période
 if nb_jours > 14:
     frequence = "D"
-    libelle = "moyenne par jour"
+    libelle = "Moyenne journalière"
 
 elif nb_jours > 2:
     frequence = "h"
-    libelle = "moyenne par heure"
+    libelle = "Moyenne horaire"
 
 else:
     frequence = "5min"
-    libelle = "mesures toutes les 5 minutes"
+    libelle = "Mesures toutes les 5 minutes"
 
 
-# Agrégation des données
 evolution = (
     df.set_index("datetime")["traffic_flow"]
     .resample(frequence)
@@ -244,15 +304,15 @@ evolution = (
     .reset_index()
 )
 
+
+# =========================================================
+# 11. GRAPHIQUE D'ÉVOLUTION
+# =========================================================
+
 titre_section(
-    "Évolution du débit",
-    f"Débit sur la sélection ({libelle})."
+    "Évolution du débit de circulation",
+    f"{libelle} sur la période sélectionnée.",
 )
-
-
-# =========================================================
-# 9. CRÉATION DU GRAPHIQUE
-# =========================================================
 
 fig = px.line(
     evolution,
@@ -261,32 +321,34 @@ fig = px.line(
     color_discrete_sequence=["#20A99F"],
 )
 
-# Ligne horizontale représentant le débit moyen
+# Ligne représentant le débit moyen
+
 fig.add_hline(
     y=debit_moyen,
     line_dash="dot",
     line_color="#9465C2",
-    annotation_text=f"Moyenne : {debit_moyen:.0f}",
+    annotation_text=f"Débit moyen : {debit_moyen:.0f}",
     annotation_position="top left",
 )
 
 # Application du style commun
+
 fig = styliser_graphique(
     fig,
-    "Débit de véhicules",
+    "Évolution du nombre de véhicules",
     "Véhicules / 5 min",
-    hauteur=380,
+    hauteur=400,
 )
 
 fig.update_layout(
     showlegend=False,
+    hovermode="x unified",
 )
 
 fig.update_xaxes(
     title="Date et heure",
 )
 
-# Affichage du graphique
 st.plotly_chart(
     fig,
     width="stretch",
@@ -294,13 +356,13 @@ st.plotly_chart(
 
 
 # =========================================================
-# 10. FOOTER
+# 12. PIED DE PAGE
 # =========================================================
 
 st.markdown(
     """
     <div class="dashboard-footer">
-        SMART TRAFFIC · TRAFFIC ANALYSIS & INTELLIGENCE
+        SMART TRAFFIC · SUPERVISION ET ANALYSE DU TRAFIC ROUTIER
     </div>
     """,
     unsafe_allow_html=True,

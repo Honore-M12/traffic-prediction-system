@@ -27,27 +27,28 @@ LOGO_BASE64 = charger_logo()
 
 
 # =========================================================
-# STYLE CSS COMMUN À TOUTES LES PAGES
+# STYLE CSS COMMUN
 # =========================================================
 
 CSS = """
 <style>
 
-/* GENERAL */
+/* =====================================================
+   GENERAL
+===================================================== */
 
 .stApp {
-    background: #F3F6FA;
+    background: #F4F7FA;
     color: #24364B;
+    font-family: Arial, sans-serif;
 }
 
 .block-container {
     max-width: 1600px;
-    padding: 0.6rem 2rem 2.5rem 2rem !important;
+    padding: 1.1rem 2rem 2.5rem 2rem !important;
 }
 
 header[data-testid="stHeader"] {
-    height: 0 !important;
-    min-height: 0 !important;
     background: transparent !important;
 }
 
@@ -56,20 +57,23 @@ header[data-testid="stHeader"] {
     display: none !important;
 }
 
-#MainMenu, footer {
+#MainMenu,
+footer {
     visibility: hidden;
 }
 
 
-/* SIDEBAR */
+/* =====================================================
+   SIDEBAR
+===================================================== */
 
 [data-testid="stSidebar"] {
     background: #102A43;
-    border-right: 1px solid #29435D;
+    border-right: 1px solid #25435D;
 }
 
 [data-testid="stSidebar"] > div:first-child {
-    padding: 0.3rem 0.55rem 1rem 0.55rem !important;
+    padding: 0.6rem 0.65rem 1rem 0.65rem !important;
 }
 
 [data-testid="stSidebar"] [data-testid="stSidebarHeader"] {
@@ -83,79 +87,87 @@ header[data-testid="stHeader"] {
 }
 
 
-/* BRAND */
+/* =====================================================
+   IDENTITE VISUELLE
+===================================================== */
 
 .brand-container {
-    padding: 12px 8px 18px 8px;
-    border-bottom: 1px solid rgba(255,255,255,0.15);
-    margin-bottom: 16px;
+    padding: 15px 8px 20px 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.14);
+    margin-bottom: 20px;
 }
 
 .brand-row {
     display: flex;
     align-items: center;
-    gap: 9px;
+    gap: 11px;
 }
 
 .brand-logo-img {
-    width: 35px;
-    height: 35px;
+    width: 38px;
+    height: 38px;
     object-fit: contain;
     display: block;
     flex-shrink: 0;
 }
 
 .brand-fallback {
-    width: 35px;
-    height: 35px;
-    border-radius: 8px;
-    background: linear-gradient(135deg, #42B9C3, #287A9E);
+    width: 38px;
+    height: 38px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #35B9B0, #287A9E);
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 18px;
+    font-size: 19px;
     font-weight: 800;
     flex-shrink: 0;
 }
 
 .brand-name {
     color: white;
-    font-size: 17px;
+    font-size: 18px;
     font-weight: 700;
+    letter-spacing: 0.1px;
 }
 
 .brand-subtitle {
-    color: #9CB2C7;
-    font-size: 9px;
-    letter-spacing: 0.6px;
-    margin-left: 44px;
+    color: #A9BED0;
+    font-size: 10px;
+    margin-left: 49px;
     margin-top: -3px;
 }
 
+
+/* =====================================================
+   NAVIGATION
+===================================================== */
+
 .nav-heading {
-    color: #829BB2;
+    color: #91A9BE;
     font-size: 9px;
     font-weight: 700;
-    letter-spacing: 1.3px;
-    margin: 15px 8px 9px 8px;
+    letter-spacing: 1.2px;
+    margin: 18px 8px 12px 8px;
 }
 
 .sidebar-active {
     background: #254765;
-    border-left: 3px solid #43BEC5;
-    border-radius: 6px;
-    padding: 10px 9px;
-    margin: 3px 0;
+    border-left: 3px solid #36B9B0;
+    border-radius: 7px;
+    padding: 11px 10px;
+    margin: 4px 0;
     color: white;
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 650;
 }
 
 [data-testid="stSidebar"] [data-testid="stPageLink"] {
-    border-radius: 6px;
-    margin: 3px 0;
-    padding: 2px 8px;
+    border-radius: 7px;
+    margin: 4px 0;
+    padding: 3px 9px;
+    transition: background 0.2s ease;
 }
 
 [data-testid="stSidebar"] [data-testid="stPageLink"]:hover {
@@ -167,32 +179,43 @@ header[data-testid="stHeader"] {
     font-size: 12px;
 }
 
+[data-testid="stSidebar"] [data-testid="stPageLink"] svg {
+    color: #80BFC8 !important;
+}
+
+
+/* =====================================================
+   PIED DE SIDEBAR
+===================================================== */
+
 .sidebar-footer {
     border-top: 1px solid rgba(255,255,255,0.14);
-    padding: 13px 8px;
-    margin-top: 25px;
-    color: #8FA8BE;
+    padding: 15px 8px;
+    margin-top: 28px;
+    color: #A9BED0;
     font-size: 10px;
     line-height: 1.8;
 }
 
 
-/* HERO HEADER */
+/* =====================================================
+   BANNIERE PRINCIPALE
+===================================================== */
 
 .hero {
     position: relative;
     overflow: hidden;
-    height: 145px;
-    border-radius: 9px;
-    margin: 0 0 17px 0;
+    min-height: 135px;
+    border-radius: 11px;
+    margin: 0 0 24px 0;
     padding: 25px 30px;
     background: linear-gradient(
-        105deg,
+        110deg,
         #102A43 0%,
         #174A68 65%,
         #246B80 100%
     );
-    box-shadow: 0 3px 12px rgba(16,42,67,0.12);
+    box-shadow: 0 4px 14px rgba(16,42,67,0.10);
 }
 
 .hero:before {
@@ -200,12 +223,12 @@ header[data-testid="stHeader"] {
     position: absolute;
     right: -30px;
     top: -90px;
-    width: 480px;
+    width: 450px;
     height: 300px;
     background: radial-gradient(
         ellipse,
-        rgba(115,190,207,0.30),
-        transparent 68%
+        rgba(115,190,207,0.22),
+        transparent 70%
     );
 }
 
@@ -214,9 +237,9 @@ header[data-testid="stHeader"] {
     position: absolute;
     right: 0;
     bottom: 0;
-    width: 52%;
-    height: 75px;
-    opacity: 0.35;
+    width: 45%;
+    height: 65px;
+    opacity: 0.22;
     background:
         linear-gradient(
             155deg,
@@ -240,18 +263,18 @@ header[data-testid="stHeader"] {
 }
 
 .hero-eyebrow {
-    color: #83D2D8;
+    color: #80D3D1;
     font-size: 9px;
     font-weight: 700;
-    letter-spacing: 1.6px;
-    margin-bottom: 9px;
+    letter-spacing: 1.5px;
+    margin-bottom: 10px;
 }
 
 .hero-title {
     color: white;
     font-size: 27px;
     font-weight: 700;
-    margin: 0 0 7px 0;
+    margin: 0 0 8px 0;
 }
 
 .hero-description {
@@ -261,78 +284,80 @@ header[data-testid="stHeader"] {
 }
 
 
-/* DEMO NOTICE */
-
-.demo-notice {
-    background: #FFF8E9;
-    border: 1px solid #F0E2C4;
-    border-radius: 6px;
-    padding: 10px 14px;
-    margin: 0 0 20px 0;
-    color: #80683A;
-    font-size: 11px;
-}
-
-.demo-badge {
-    background: #F2E4C7;
-    color: #8D6A2D;
-    padding: 4px 7px;
-    border-radius: 4px;
-    font-size: 9px;
-    font-weight: 700;
-    margin-right: 9px;
-}
-
-
-/* SECTION TITLES */
+/* =====================================================
+   TITRES DE SECTION
+===================================================== */
 
 .section-title {
     color: #20364D;
     font-size: 16px;
     font-weight: 700;
-    margin-top: 18px;
-    margin-bottom: 4px;
+    margin-top: 23px;
+    margin-bottom: 5px;
 }
 
 .section-subtitle {
-    color: #8593A3;
+    color: #8192A5;
     font-size: 11px;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
 }
 
 
-/* FILTERS */
+/* =====================================================
+   FILTRES
+===================================================== */
 
 .stMultiSelect label,
-.stSelectbox label {
+.stSelectbox label,
+.stDateInput label,
+.stSlider label,
+.stRadio label {
     color: #43566A;
     font-size: 11px;
     font-weight: 600;
 }
 
+[data-testid="stMultiSelect"] [data-baseweb="tag"] {
+    background-color: #DCEDEA !important;
+    color: #176F6B !important;
+}
 
-/* KPI CARDS */
+[data-baseweb="input"],
+[data-baseweb="select"] > div {
+    border-radius: 7px !important;
+}
+
+
+/* =====================================================
+   CARTES KPI
+===================================================== */
 
 .kpi-card {
-    background: white;
-    border: 1px solid #E4EAF0;
-    border-radius: 8px;
-    padding: 13px 14px;
-    min-height: 105px;
-    box-shadow: 0 2px 8px rgba(29,55,80,0.04);
+    background: #FFFFFF;
+    border: 1px solid #E3EAF0;
+    border-radius: 10px;
+    padding: 15px 16px;
+    min-height: 110px;
+    box-shadow: 0 3px 10px rgba(29,55,80,0.035);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(29,55,80,0.08);
 }
 
 .kpi-header {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 10px;
+    gap: 9px;
+    margin-bottom: 11px;
 }
 
 .kpi-icon {
-    width: 23px;
-    height: 23px;
-    border-radius: 6px;
+    width: 25px;
+    height: 25px;
+    border-radius: 7px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -357,53 +382,70 @@ header[data-testid="stHeader"] {
 
 .kpi-label {
     color: #718398;
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 600;
 }
 
 .kpi-value {
     color: #172D46;
-    font-size: 23px;
+    font-size: 24px;
     font-weight: 750;
+    line-height: 1.3;
 }
 
 .kpi-foot {
     color: #91A0AF;
     font-size: 9px;
-    margin-top: 5px;
+    margin-top: 6px;
 }
 
 
-/* GRAPHIQUES */
+/* =====================================================
+   GRAPHIQUES
+===================================================== */
 
 [data-testid="stPlotlyChart"] {
     background: white;
     border: 1px solid #E5EAF0;
-    border-radius: 8px;
-    padding: 3px;
-    box-shadow: 0 2px 8px rgba(29,55,80,0.035);
+    border-radius: 10px;
+    padding: 5px;
+    box-shadow: 0 3px 10px rgba(29,55,80,0.035);
 }
 
 
-/* TABLE */
+/* =====================================================
+   TABLEAUX
+===================================================== */
 
 [data-testid="stDataFrame"] {
     background: white;
     border: 1px solid #E4EAF0;
-    border-radius: 8px;
+    border-radius: 9px;
+    overflow: hidden;
 }
 
 
-/* FOOTER */
+/* =====================================================
+   MESSAGES ET INDICATEURS
+===================================================== */
+
+[data-testid="stAlert"] {
+    border-radius: 9px;
+}
+
+
+/* =====================================================
+   FOOTER
+===================================================== */
 
 .dashboard-footer {
     border-top: 1px solid #E0E7EE;
-    padding-top: 12px;
-    margin-top: 25px;
+    padding-top: 14px;
+    margin-top: 30px;
     text-align: center;
-    color: #9AA7B4;
+    color: #91A0AF;
     font-size: 9px;
-    letter-spacing: 0.7px;
+    letter-spacing: 0.4px;
 }
 
 </style>
@@ -454,7 +496,7 @@ def afficher_menu(page_active):
             '<div class="brand-name">Smart Traffic</div>'
             '</div>'
             '<div class="brand-subtitle">'
-            'Traffic Intelligence Platform'
+            'Supervision du trafic routier'
             '</div>'
             '</div>'
         )
@@ -465,7 +507,7 @@ def afficher_menu(page_active):
         )
 
         st.markdown(
-            '<div class="nav-heading">NAVIGATION PRINCIPALE</div>',
+            '<div class="nav-heading">NAVIGATION</div>',
             unsafe_allow_html=True
         )
 
@@ -483,28 +525,18 @@ def afficher_menu(page_active):
                     icon=icone
                 )
 
-        st.markdown(
-            """
-            <div class="sidebar-footer">
-                <strong style="color:#DCE7F0;">SMART TRAFFIC</strong><br>
-                Machine Learning & Traffic Analysis<br>
-                PROJECT VERSION 1.0
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
 
 
 # =========================================================
-# BANNIÈRE
+# BANNIERE
 # =========================================================
 
 def afficher_banniere(
     titre,
     description,
-    surtitre="SMART TRAFFIC"
+    surtitre="SUPERVISION ROUTIÈRE"
 ):
-    """Affiche le bandeau bleu en haut de la page."""
+    """Affiche la bannière principale."""
 
     html = (
         '<div class="hero">'
@@ -583,8 +615,6 @@ def styliser_graphique(
 ):
     """
     Applique le style commun aux graphiques Plotly.
-
-    Utilisée notamment par la page 2 Exploration.
     """
 
     fig.update_layout(
@@ -592,32 +622,38 @@ def styliser_graphique(
         title=dict(
             text=titre,
             font=dict(
-                size=12,
+                size=13,
                 color="#263A50"
             ),
             x=0.02
         ),
         height=hauteur,
         margin=dict(
-            l=25,
-            r=15,
-            t=48,
-            b=38
+            l=30,
+            r=20,
+            t=50,
+            b=40
         ),
         font=dict(
             family="Arial",
-            size=10,
+            size=11,
             color="#6F8193"
         ),
         xaxis_title="",
         yaxis_title=titre_y,
         showlegend=False,
         plot_bgcolor="white",
-        paper_bgcolor="white"
+        paper_bgcolor="white",
+        hoverlabel=dict(
+            bgcolor="white",
+            font_size=12,
+            font_family="Arial"
+        )
     )
 
     fig.update_xaxes(
-        showgrid=False
+        showgrid=False,
+        linecolor="#E5EAF0"
     )
 
     fig.update_yaxes(
