@@ -2,6 +2,7 @@ import streamlit as st
 import base64
 from pathlib import Path
 
+
 # =========================================================
 # CONFIGURATION DU LOGO
 # =========================================================
@@ -26,7 +27,7 @@ LOGO_BASE64 = charger_logo()
 
 
 # =========================================================
-# STYLE CSS COMMUN
+# STYLE CSS COMMUN À TOUTES LES PAGES
 # =========================================================
 
 CSS = """
@@ -59,6 +60,7 @@ header[data-testid="stHeader"] {
     visibility: hidden;
 }
 
+
 /* SIDEBAR */
 
 [data-testid="stSidebar"] {
@@ -79,6 +81,7 @@ header[data-testid="stHeader"] {
 [data-testid="stSidebarNav"] {
     display: none !important;
 }
+
 
 /* BRAND */
 
@@ -173,6 +176,7 @@ header[data-testid="stHeader"] {
     line-height: 1.8;
 }
 
+
 /* HERO HEADER */
 
 .hero {
@@ -182,7 +186,12 @@ header[data-testid="stHeader"] {
     border-radius: 9px;
     margin: 0 0 17px 0;
     padding: 25px 30px;
-    background: linear-gradient(105deg, #102A43 0%, #174A68 65%, #246B80 100%);
+    background: linear-gradient(
+        105deg,
+        #102A43 0%,
+        #174A68 65%,
+        #246B80 100%
+    );
     box-shadow: 0 3px 12px rgba(16,42,67,0.12);
 }
 
@@ -193,7 +202,11 @@ header[data-testid="stHeader"] {
     top: -90px;
     width: 480px;
     height: 300px;
-    background: radial-gradient(ellipse, rgba(115,190,207,0.30), transparent 68%);
+    background: radial-gradient(
+        ellipse,
+        rgba(115,190,207,0.30),
+        transparent 68%
+    );
 }
 
 .hero:after {
@@ -205,8 +218,20 @@ header[data-testid="stHeader"] {
     height: 75px;
     opacity: 0.35;
     background:
-        linear-gradient(155deg, transparent 48%, #9CCAD5 49%, #9CCAD5 50%, transparent 51%),
-        linear-gradient(165deg, transparent 58%, #9CCAD5 59%, #9CCAD5 60%, transparent 61%);
+        linear-gradient(
+            155deg,
+            transparent 48%,
+            #9CCAD5 49%,
+            #9CCAD5 50%,
+            transparent 51%
+        ),
+        linear-gradient(
+            165deg,
+            transparent 58%,
+            #9CCAD5 59%,
+            #9CCAD5 60%,
+            transparent 61%
+        );
 }
 
 .hero-content {
@@ -235,6 +260,7 @@ header[data-testid="stHeader"] {
     margin: 0;
 }
 
+
 /* DEMO NOTICE */
 
 .demo-notice {
@@ -257,6 +283,7 @@ header[data-testid="stHeader"] {
     margin-right: 9px;
 }
 
+
 /* SECTION TITLES */
 
 .section-title {
@@ -273,6 +300,7 @@ header[data-testid="stHeader"] {
     margin-bottom: 12px;
 }
 
+
 /* FILTERS */
 
 .stMultiSelect label,
@@ -281,6 +309,7 @@ header[data-testid="stHeader"] {
     font-size: 11px;
     font-weight: 600;
 }
+
 
 /* KPI CARDS */
 
@@ -344,6 +373,7 @@ header[data-testid="stHeader"] {
     margin-top: 5px;
 }
 
+
 /* GRAPHIQUES */
 
 [data-testid="stPlotlyChart"] {
@@ -354,6 +384,7 @@ header[data-testid="stHeader"] {
     box-shadow: 0 2px 8px rgba(29,55,80,0.035);
 }
 
+
 /* TABLE */
 
 [data-testid="stDataFrame"] {
@@ -361,6 +392,7 @@ header[data-testid="stHeader"] {
     border: 1px solid #E4EAF0;
     border-radius: 8px;
 }
+
 
 /* FOOTER */
 
@@ -377,6 +409,10 @@ header[data-testid="stHeader"] {
 </style>
 """
 
+
+# =========================================================
+# APPLICATION DU STYLE
+# =========================================================
 
 def appliquer_style():
     """Injecte le CSS commun dans la page."""
@@ -411,7 +447,6 @@ def afficher_menu(page_active):
         else:
             logo_html = '<div class="brand-fallback">S</div>'
 
-        # HTML sans indentation parasite
         brand_html = (
             '<div class="brand-container">'
             '<div class="brand-row">'
@@ -461,10 +496,14 @@ def afficher_menu(page_active):
 
 
 # =========================================================
-# ÉLÉMENTS VISUELS RÉUTILISABLES
+# BANNIÈRE
 # =========================================================
 
-def afficher_banniere(titre, description, surtitre="SMART TRAFFIC"):
+def afficher_banniere(
+    titre,
+    description,
+    surtitre="SMART TRAFFIC"
+):
     """Affiche le bandeau bleu en haut de la page."""
 
     html = (
@@ -477,8 +516,15 @@ def afficher_banniere(titre, description, surtitre="SMART TRAFFIC"):
         '</div>'
     )
 
-    st.markdown(html, unsafe_allow_html=True)
+    st.markdown(
+        html,
+        unsafe_allow_html=True
+    )
 
+
+# =========================================================
+# TITRES DE SECTION
+# =========================================================
 
 def titre_section(titre, sous_titre=None):
     """Affiche un titre de section."""
@@ -495,7 +541,17 @@ def titre_section(titre, sous_titre=None):
         )
 
 
-def carte_kpi(label, valeur, pied, icone="▦", couleur="teal"):
+# =========================================================
+# CARTES KPI
+# =========================================================
+
+def carte_kpi(
+    label,
+    valeur,
+    pied,
+    icone="▦",
+    couleur="teal"
+):
     """Affiche une carte KPI."""
 
     html = (
@@ -509,4 +565,64 @@ def carte_kpi(label, valeur, pied, icone="▦", couleur="teal"):
         '</div>'
     )
 
-    st.markdown(html, unsafe_allow_html=True)
+    st.markdown(
+        html,
+        unsafe_allow_html=True
+    )
+
+
+# =========================================================
+# STYLISATION DES GRAPHIQUES PLOTLY
+# =========================================================
+
+def styliser_graphique(
+    fig,
+    titre,
+    titre_y,
+    hauteur=320
+):
+    """
+    Applique le style commun aux graphiques Plotly.
+
+    Utilisée notamment par la page 2 Exploration.
+    """
+
+    fig.update_layout(
+        template="plotly_white",
+        title=dict(
+            text=titre,
+            font=dict(
+                size=12,
+                color="#263A50"
+            ),
+            x=0.02
+        ),
+        height=hauteur,
+        margin=dict(
+            l=25,
+            r=15,
+            t=48,
+            b=38
+        ),
+        font=dict(
+            family="Arial",
+            size=10,
+            color="#6F8193"
+        ),
+        xaxis_title="",
+        yaxis_title=titre_y,
+        showlegend=False,
+        plot_bgcolor="white",
+        paper_bgcolor="white"
+    )
+
+    fig.update_xaxes(
+        showgrid=False
+    )
+
+    fig.update_yaxes(
+        gridcolor="#EAF0F5",
+        zeroline=False
+    )
+
+    return fig
