@@ -2,11 +2,13 @@
 
 La simulation reprend exactement le même trafic et le même contrôleur que
 run_sumo.py, mais sur un créneau (par exemple la pointe du matin) et avec une
-fenêtre SUMO centrée sur le carrefour, ralentie pour être regardée.
+fenêtre SUMO centrée sur l'axe, ralentie pour être regardée.
 
-    - véhicules JAUNES : cycle fixe (40 s / 40 s)
+    - véhicules JAUNES : cycle fixe (90 s : 56 s axe / 24 s rues latérales)
     - véhicules BLEUS  : régulation IA
     - un trait vert ou rouge à chaque ligne d'arrêt = le feu de la voie
+    - l'axe principal va de gauche à droite ; la rue latérale le croise en
+      haut et en bas
 
 Exemples (depuis la racine du dépôt) :
     python -m regulation.visualiser --data data/processed/test.csv --predictor model \
@@ -28,13 +30,14 @@ import traci
 from . import config as cfg
 from .decision import decide_green
 from .demand import write_routes
-from .network import SCENARIO_DIR, TLS_ID, build
+from .network import SCENARIO_DIR, TLS_IDS, build
 from .run_sumo import INDICATORS, build_predictor, run_window
 from .indicators import overall_metrics
 
 FIXED_COLOR = None                 # jaune : couleur par défaut de SUMO
 AI_COLOR = "0,150,255"             # bleu
-HALF_WIDTH_M, HALF_HEIGHT_M = 110, 80      # zone visible autour du carrefour
+HALF_WIDTH_M, HALF_HEIGHT_M = 480, 170    # zone visible : les 3 carrefours (--focus J1/J2/J3 : zoom)
+ZOOM_WIDTH_M, ZOOM_HEIGHT_M = 110, 80
 
 
 def parse_window(text):
@@ -65,7 +68,7 @@ def colored_copy(src, dest, rgb):
     return dest
 
 
-def make_hook(label, gui, t0_s, warm_s, horizon_s, delay_s, shots_dir, shot_every_s, tag):
+def make_hook(label, gui, t0_s, warm_s, horizon_s, delay_s, shots_dir, shot_every_s, tag, focus="all"):
     """Fonction appelée à chaque seconde simulée : caméra, ralenti, affichage, captures."""
     state = {"view": None}
 
@@ -73,10 +76,17 @@ def make_hook(label, gui, t0_s, warm_s, horizon_s, delay_s, shots_dir, shot_ever
         if gui and state["view"] is None:
             try:
                 view = traci.gui.getIDList()[0]
-                cx, cy = traci.junction.getPosition(TLS_ID)
+                if focus == "all" and len(TLS_IDS) > 1:   # centré sur le carrefour du milieu
+                    cx, cy = traci.junction.getPosition(TLS_IDS[len(TLS_IDS) // 2])
+                    hw, hh = HALF_WIDTH_M, HALF_HEIGHT_M
+                elif focus == "all":                    # un seul carrefour : on le voit de près
+                    cx, cy = traci.junction.getPosition(TLS_IDS[0])
+                    hw, hh = ZOOM_WIDTH_M, ZOOM_HEIGHT_M
+                else:
+                    cx, cy = traci.junction.getPosition(focus)
+                    hw, hh = ZOOM_WIDTH_M, ZOOM_HEIGHT_M
                 traci.gui.setSchema(view, "real world")
-                traci.gui.setBoundary(view, cx - HALF_WIDTH_M, cy - HALF_HEIGHT_M,
-                                      cx + HALF_WIDTH_M, cy + HALF_HEIGHT_M)
+                traci.gui.setBoundary(view, cx - hw, cy - hh, cx + hw, cy + hh)
                 state["view"] = view
             except Exception as e:                  # la caméra est un confort, pas une nécessité
                 state["view"] = False
@@ -85,8 +95,8 @@ def make_hook(label, gui, t0_s, warm_s, horizon_s, delay_s, shots_dir, shot_ever
             return
         if cycle_started:
             g_main, g_sec = current
-            print(f"  {clock(t0_s + t)} | {label:<15} | vert N-S {g_main:2d} s | "
-                  f"vert E-O {g_sec:2d} s | cycle {g_main + g_sec + 2 * cfg.CLEARANCE_S:3d} s")
+            print(f"  {clock(t0_s + t)} | {label:<15} | vert axe {g_main:2d} s | "
+                  f"vert rues latérales {g_sec:2d} s | cycle {g_main + g_sec + 2 * cfg.CLEARANCE_S:3d} s")
         if shots_dir and gui and state["view"] and (t - warm_s) % shot_every_s == 0:
             traci.gui.screenshot(state["view"],
                                  str(Path(shots_dir) / f"{tag}_{clock(t0_s + t).replace(':', 'h', 1)[:5]}.png"))
@@ -103,9 +113,11 @@ def main(argv=None):
     ap.add_argument("--day", default="2020-05-19", help="journée (AAAA-MM-JJ)")
     ap.add_argument("--window", default="07:30-09:00", help="créneau à regarder (HH:MM-HH:MM)")
     ap.add_argument("--warmup", type=int, default=30,
-                    help="minutes simulées avant le créneau, sans ralenti, pour que le carrefour "
+                    help="minutes simulées avant le créneau, sans ralenti, pour que l'axe "
                          "soit déjà chargé (défaut 30)")
     ap.add_argument("--scenario", default="both", choices=["both", "fixed", "ai"])
+    ap.add_argument("--focus", default="all", choices=["all"] + TLS_IDS,
+                    help="all = tous les carrefours dans la fenêtre (zoom si un seul) ; J1... = zoom sur un carrefour")
     ap.add_argument("--delay", type=int, default=40,
                     help="ralenti : millisecondes d'attente par seconde simulée (défaut 40, "
                          "0 = pleine vitesse)")
@@ -138,7 +150,7 @@ def main(argv=None):
     predictor = build_predictor(args, df)
     pred = pd.Series(predictor.predict(df), index=df["datetime"]).reindex(dw["datetime"]).to_numpy()
     plans = [decide_green(f, h, m) for f, h, m in zip(pred, dw["hour"], dw["minute"])]
-    fixed_plan = (cfg.FIXED_GREEN_S, cfg.FIXED_GREEN_S)
+    fixed_plan = (cfg.FIXED_MAIN_GREEN_S, cfg.FIXED_SIDE_GREEN_S)
 
     net_file = SCENARIO_DIR / "c.net.xml"
     if not net_file.exists():
@@ -173,7 +185,7 @@ def main(argv=None):
                 continue
             print(f"\n=== {label} ({colour}) ===")
             hook = make_hook(label, gui, t0_s, warm_s, horizon_s,
-                             args.delay / 1000 if gui else 0, shots_dir, shot_every_s, key)
+                             args.delay / 1000 if gui else 0, shots_dir, shot_every_s, key, args.focus)
             results[key] = run_window(
                 net_file, rfile, work / f"tripinfo_{key}.xml", n, plan, args.seed, gui,
                 extra_cmd=["--window-size", "1100,700"] if gui else (), on_step=hook)

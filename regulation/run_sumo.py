@@ -30,7 +30,9 @@ from . import config as cfg
 from .decision import congestion_level, decide_green
 from .demand import write_routes
 from .indicators import interval_metrics, overall_metrics, read_tripinfo
-from .network import SCENARIO_DIR, TLS_ID, build, incoming_edges
+import heapq
+
+from .network import SCENARIO_DIR, TLS_IDS, build, incoming_edges
 from .predictors import (CsvPredictor, ModelPredictor, OraclePredictor,
                          PersistencePredictor, load_model_info)
 
@@ -47,12 +49,19 @@ FLUSH_MAX_S = 3600                         # vidage du réseau après la fenêtr
 
 
 def run_window(net_file, routes_file, tripinfo_file, n_steps, plan, seed, gui=False,
-               extra_cmd=(), on_step=None):
-    """Une simulation SUMO complète. ``plan(i)`` donne (vert_N-S, vert_E-O) pour
-    un cycle qui démarre pendant l'intervalle de 5 min numéro ``i``.
+               extra_cmd=(), on_step=None, record_states=None):
+    """Une simulation SUMO complète. ``plan(i)`` donne (vert axe principal, vert rues
+    latérales) pour un cycle qui démarre pendant l'intervalle de 5 min numéro ``i``.
+
+    Contrôle des feux (TraCI) : le premier carrefour (J1) suit le plan ; s'il y
+    en a d'autres (N_JUNCTIONS > 1), ils rejouent exactement son programme avec
+    un retard de OFFSET_S secondes par carrefour (onde verte). Chaque changement de phase est planifié
+    à la seconde près (setPhase + durée), donc les durées obtenues sont exactes.
 
     ``on_step(t, cycle_started, current)`` (facultatif) est appelé à chaque seconde
-    simulée ; utilisé par le mode visualisation (regulation/visualiser.py)."""
+    simulée ; utilisé par le mode visualisation (regulation/visualiser.py).
+    ``record_states`` (liste, facultatif) reçoit (t, état de J1) à chaque seconde
+    (utilisé pour vérifier les durées)."""
     binary = sumolib.checkBinary("sumo-gui" if gui else "sumo")
     cmd = [binary, "-n", str(net_file), "-r", str(routes_file),
            "--tripinfo-output", str(tripinfo_file),
@@ -66,9 +75,48 @@ def run_window(net_file, routes_file, tripinfo_file, n_steps, plan, seed, gui=Fa
     edges = incoming_edges()
     horizon = n_steps * cfg.STEP_S
     queue_samples, cycles = [], []
-    last_phase, current, t = -1, (cfg.FIXED_GREEN_S, cfg.FIXED_GREEN_S), 0
+    events, order = [], 0                 # (instant, ordre, feu, phase, durée)
+    next_start, current, t = 0, plan(0), 0
+    y, r = cfg.YELLOW_S, cfg.ALL_RED_S
+
+    def schedule_cycle(t0, g_main, g_side):
+        nonlocal order
+        for k, tls in enumerate(TLS_IDS):
+            u = t0 + k * cfg.OFFSET_S
+            for dt, phase, dur in ((0, 0, g_main), (g_main, 1, y), (g_main + y, 2, r),
+                                   (g_main + y + r, 3, g_side),
+                                   (g_main + y + r + g_side, 4, y),
+                                   (g_main + y + r + g_side + y, 5, r)):
+                heapq.heappush(events, (u + dt, order, tls, phase, dur))
+                order += 1
+
     try:
+        # avant le démarrage du premier cycle, les carrefours suivants attendent
+        # en « vert rues latérales » (le trafic est nul à minuit)
+        for tls in TLS_IDS[1:]:
+            traci.trafficlight.setPhase(tls, 3)
+            traci.trafficlight.setPhaseDuration(tls, 10 * 3600)
         while True:
+            t = int(traci.simulation.getTime())
+            cycle_started = False
+            if t >= next_start:                        # début d'un cycle : décision
+                i = min(t // cfg.STEP_S, n_steps - 1)
+                current = plan(i)
+                cycles.append((t, *current))
+                schedule_cycle(t, *current)
+                next_start = t + current[0] + current[1] + 2 * cfg.CLEARANCE_S
+                cycle_started = True
+            while events and events[0][0] <= t:
+                _, _, tls, phase, dur = heapq.heappop(events)
+                traci.trafficlight.setPhase(tls, phase)
+                traci.trafficlight.setPhaseDuration(tls, dur)
+            if record_states is not None:
+                record_states.append((t, traci.trafficlight.getRedYellowGreenState(TLS_IDS[0])))
+            if on_step is not None:
+                on_step(t, cycle_started, current)
+            if t % SAMPLE_EVERY_S == 0 and t <= horizon:
+                queue_samples.append(
+                    (t, sum(traci.edge.getLastStepHaltingNumber(e) for e in edges)))
             traci.simulationStep()
             t = int(traci.simulation.getTime())
             if t > horizon and traci.simulation.getMinExpectedNumber() == 0:
@@ -76,26 +124,6 @@ def run_window(net_file, routes_file, tripinfo_file, n_steps, plan, seed, gui=Fa
             if t > horizon + FLUSH_MAX_S:
                 print(f"  Attention : réseau non vidé {FLUSH_MAX_S}s après la fenêtre.")
                 break
-            phase = traci.trafficlight.getPhase(TLS_ID)
-            cycle_started = False
-            if phase != last_phase:
-                i = min(t // cfg.STEP_S, n_steps - 1)
-                # setPhaseDuration fixe le temps restant ; la seconde déjà écoulée
-                # quand on détecte le changement de phase compte, d'où le « - 1 »
-                # (vérifié : la durée obtenue est exactement celle demandée).
-                if phase == 0:                         # début de cycle : décision
-                    current = plan(i)
-                    cycle_started = True
-                    cycles.append((t, *current))
-                    traci.trafficlight.setPhaseDuration(TLS_ID, current[0] - 1)
-                elif phase == 3:
-                    traci.trafficlight.setPhaseDuration(TLS_ID, current[1] - 1)
-                last_phase = phase
-            if on_step is not None:
-                on_step(t, cycle_started, current)
-            if t % SAMPLE_EVERY_S == 0 and t <= horizon:
-                queue_samples.append(
-                    (t, sum(traci.edge.getLastStepHaltingNumber(e) for e in edges)))
     finally:
         try:
             traci.close()
@@ -161,9 +189,13 @@ def main(argv=None):
     ap.add_argument("--seed", type=int, default=cfg.SEED)
     ap.add_argument("--gui", action="store_true", help="ouvre sumo-gui (pour regarder)")
     ap.add_argument("--peak-vph", type=float,
-                    help=f"demande totale au pic du dataset (défaut {cfg.PEAK_TOTAL_VPH:.0f} véh/h)")
+                    help=f"demande de l'axe principal au pic du dataset (défaut {cfg.PEAK_MAIN_VPH:.0f} véh/h)")
     ap.add_argument("--fixed-green", type=int,
-                    help=f"vert par axe du cycle fixe de référence (défaut {cfg.FIXED_GREEN_S} s)")
+                    help=f"vert de l'axe principal du cycle fixe de référence (défaut {cfg.FIXED_MAIN_GREEN_S} s)")
+    ap.add_argument("--fixed-side-green", type=int,
+                    help=f"vert des rues latérales du cycle fixe de référence (défaut {cfg.FIXED_SIDE_GREEN_S} s)")
+    ap.add_argument("--offset", type=int,
+                    help=f"décalage entre deux carrefours, en secondes (défaut {cfg.OFFSET_S})")
     ap.add_argument("--work-dir", default=str(SCENARIO_DIR / "runs"),
                     help="dossier des fichiers temporaires SUMO")
     ap.add_argument("--rebuild-net", action="store_true", help="reconstruit le réseau SUMO")
@@ -175,9 +207,13 @@ def main(argv=None):
     pred_all = pd.Series(predictor.predict(df), index=df["datetime"])
 
     if args.peak_vph:
-        cfg.PEAK_TOTAL_VPH = args.peak_vph
+        cfg.PEAK_MAIN_VPH = args.peak_vph
     if args.fixed_green:
-        cfg.FIXED_GREEN_S = args.fixed_green
+        cfg.FIXED_MAIN_GREEN_S = args.fixed_green
+    if args.fixed_side_green:
+        cfg.FIXED_SIDE_GREEN_S = args.fixed_side_green
+    if args.offset is not None:
+        cfg.OFFSET_S = args.offset
     net_file = SCENARIO_DIR / "c.net.xml"
     if args.rebuild_net or not net_file.exists():
         build(SCENARIO_DIR)
@@ -205,7 +241,7 @@ def main(argv=None):
         demand = write_routes(dw, routes, seed=args.seed + w)
         pred = pred_all.reindex(dw["datetime"]).to_numpy()
         plans = [decide_green(f, h, m) for f, h, m in zip(pred, dw["hour"], dw["minute"])]
-        fixed_plan = (cfg.FIXED_GREEN_S, cfg.FIXED_GREEN_S)
+        fixed_plan = (cfg.FIXED_MAIN_GREEN_S, cfg.FIXED_SIDE_GREEN_S)
         print(f"[{day}] {demand['n_vehicles']} véhicules ; simulation cycle fixe...")
         res = {}
         res["fixed"] = run_window(net_file, routes, run_dir / "tripinfo_fixed.xml", n,
