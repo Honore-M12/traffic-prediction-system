@@ -1,96 +1,96 @@
 scope,indicator,label,unit,fixed,ai,gain_pct
-global,avg_wait_s,Temps d'attente moyen,s/véh,15.409,8.162,47.0
-global,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,11.57,5.896,49.0
-global,avg_speed_kmh,Vitesse moyenne,km/h,33.496,36.859,10.0
-global,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.637,0.643,-0.9
-global,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,171.362,158.751,7.4
-2020-05-14,avg_wait_s,Temps d'attente moyen,s/véh,15.167,8.185,46.0
-2020-05-14,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,11.482,5.974,48.0
-2020-05-14,avg_speed_kmh,Vitesse moyenne,km/h,33.624,36.883,9.7
-2020-05-14,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.631,0.639,-1.2
-2020-05-14,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,170.688,158.539,7.1
-2020-05-15,avg_wait_s,Temps d'attente moyen,s/véh,15.39,8.749,43.2
-2020-05-15,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,12.281,6.711,45.4
-2020-05-15,avg_speed_kmh,Vitesse moyenne,km/h,33.476,36.48,9.0
-2020-05-15,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.638,0.658,-3.2
-2020-05-15,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,171.679,160.436,6.5
-2020-05-16,avg_wait_s,Temps d'attente moyen,s/véh,15.349,7.929,48.3
-2020-05-16,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,11.321,5.622,50.3
-2020-05-16,avg_speed_kmh,Vitesse moyenne,km/h,33.581,37.029,10.3
-2020-05-16,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.634,0.637,-0.5
-2020-05-16,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,170.585,157.933,7.4
-2020-05-17,avg_wait_s,Temps d'attente moyen,s/véh,14.926,7.345,50.8
-2020-05-17,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,9.821,4.613,53.0
-2020-05-17,avg_speed_kmh,Vitesse moyenne,km/h,33.903,37.529,10.7
-2020-05-17,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.615,0.617,-0.4
-2020-05-17,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,168.525,155.474,7.7
-2020-05-18,avg_wait_s,Temps d'attente moyen,s/véh,15.037,7.687,48.9
-2020-05-18,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,10.804,5.354,50.4
-2020-05-18,avg_speed_kmh,Vitesse moyenne,km/h,33.772,37.252,10.3
-2020-05-18,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.624,0.624,-0.0
-2020-05-18,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,169.638,156.842,7.5
-2020-05-19,avg_wait_s,Temps d'attente moyen,s/véh,15.667,8.342,46.8
-2020-05-19,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,12.048,6.21,48.5
-2020-05-19,avg_speed_kmh,Vitesse moyenne,km/h,33.328,36.706,10.1
-2020-05-19,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.646,0.647,-0.2
-2020-05-19,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,172.379,159.521,7.5
-2020-05-20,avg_wait_s,Temps d'attente moyen,s/véh,15.534,8.318,46.4
-2020-05-20,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,12.063,6.209,48.5
-2020-05-20,avg_speed_kmh,Vitesse moyenne,km/h,33.385,36.717,10.0
-2020-05-20,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.643,0.647,-0.6
-2020-05-20,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,172.133,159.491,7.3
-2020-05-21,avg_wait_s,Temps d'attente moyen,s/véh,15.299,8.244,46.1
-2020-05-21,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,11.987,6.193,48.3
-2020-05-21,avg_speed_kmh,Vitesse moyenne,km/h,33.508,36.795,9.8
-2020-05-21,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.638,0.64,-0.3
-2020-05-21,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,171.62,159.139,7.3
-2020-05-22,avg_wait_s,Temps d'attente moyen,s/véh,15.599,8.766,43.8
-2020-05-22,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,12.693,6.916,45.5
-2020-05-22,avg_speed_kmh,Vitesse moyenne,km/h,33.311,36.425,9.3
-2020-05-22,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.644,0.657,-2.0
-2020-05-22,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,172.711,160.875,6.9
-2020-05-23,avg_wait_s,Temps d'attente moyen,s/véh,15.443,8.214,46.8
-2020-05-23,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,11.724,6.063,48.3
-2020-05-23,avg_speed_kmh,Vitesse moyenne,km/h,33.48,36.808,9.9
-2020-05-23,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.639,0.649,-1.7
-2020-05-23,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,171.486,158.964,7.3
-2020-05-24,avg_wait_s,Temps d'attente moyen,s/véh,15.076,7.442,50.6
-2020-05-24,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,10.551,4.936,53.2
-2020-05-24,avg_speed_kmh,Vitesse moyenne,km/h,33.762,37.395,10.8
-2020-05-24,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.624,0.621,0.5
-2020-05-24,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,169.57,156.335,7.8
-2020-05-25,avg_wait_s,Temps d'attente moyen,s/véh,14.862,7.882,47.0
-2020-05-25,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,10.353,5.26,49.2
-2020-05-25,avg_speed_kmh,Vitesse moyenne,km/h,33.897,37.127,9.5
-2020-05-25,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.617,0.637,-3.2
-2020-05-25,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,168.765,157.098,6.9
-2020-05-26,avg_wait_s,Temps d'attente moyen,s/véh,15.791,8.171,48.3
-2020-05-26,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,12.336,6.133,50.3
-2020-05-26,avg_speed_kmh,Vitesse moyenne,km/h,33.209,36.78,10.8
-2020-05-26,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.651,0.646,0.7
-2020-05-26,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,173.179,159.393,8.0
-2020-05-27,avg_wait_s,Temps d'attente moyen,s/véh,15.783,8.327,47.2
-2020-05-27,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,12.322,6.233,49.4
-2020-05-27,avg_speed_kmh,Vitesse moyenne,km/h,33.261,36.709,10.4
-2020-05-27,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.647,0.652,-0.8
-2020-05-27,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,172.672,159.532,7.6
-2020-05-28,avg_wait_s,Temps d'attente moyen,s/véh,15.858,8.347,47.4
-2020-05-28,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,12.628,6.428,49.1
-2020-05-28,avg_speed_kmh,Vitesse moyenne,km/h,33.199,36.661,10.4
-2020-05-28,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.651,0.648,0.4
-2020-05-28,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,173.295,159.944,7.7
-2020-05-29,avg_wait_s,Temps d'attente moyen,s/véh,15.669,8.522,45.6
-2020-05-29,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,12.817,6.712,47.6
-2020-05-29,avg_speed_kmh,Vitesse moyenne,km/h,33.253,36.536,9.9
-2020-05-29,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.648,0.655,-1.0
-2020-05-29,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,173.228,160.503,7.3
-2020-05-30,avg_wait_s,Temps d'attente moyen,s/véh,15.729,8.436,46.4
-2020-05-30,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,11.856,6.131,48.3
-2020-05-30,avg_speed_kmh,Vitesse moyenne,km/h,33.302,36.628,10.0
-2020-05-30,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.644,0.655,-1.7
-2020-05-30,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,172.48,159.844,7.3
-2020-05-31,avg_wait_s,Temps d'attente moyen,s/véh,14.843,7.538,49.2
-2020-05-31,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,9.18,4.433,51.7
-2020-05-31,avg_speed_kmh,Vitesse moyenne,km/h,33.987,37.429,10.1
-2020-05-31,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.616,0.622,-0.9
-2020-05-31,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,167.891,155.672,7.3
+global,avg_wait_s,Temps d'attente moyen,s/véh,12.253,8.055,34.3
+global,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,4.71,3.127,33.6
+global,avg_speed_kmh,Vitesse moyenne,km/h,33.826,35.612,5.3
+global,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.548,0.625,-14.0
+global,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,149.385,145.102,2.9
+2020-05-14,avg_wait_s,Temps d'attente moyen,s/véh,12.062,7.971,33.9
+2020-05-14,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,4.704,3.143,33.2
+2020-05-14,avg_speed_kmh,Vitesse moyenne,km/h,33.931,35.646,5.1
+2020-05-14,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.545,0.625,-14.8
+2020-05-14,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,148.952,144.962,2.7
+2020-05-15,avg_wait_s,Temps d'attente moyen,s/véh,12.206,8.388,31.3
+2020-05-15,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,5.003,3.469,30.7
+2020-05-15,avg_speed_kmh,Vitesse moyenne,km/h,33.722,35.274,4.6
+2020-05-15,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.553,0.634,-14.7
+2020-05-15,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,150.599,147.11,2.3
+2020-05-16,avg_wait_s,Temps d'attente moyen,s/véh,11.845,7.512,36.6
+2020-05-16,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,4.458,2.856,35.9
+2020-05-16,avg_speed_kmh,Vitesse moyenne,km/h,34.168,36.033,5.5
+2020-05-16,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.534,0.614,-15.2
+2020-05-16,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,147.807,143.618,2.8
+2020-05-17,avg_wait_s,Temps d'attente moyen,s/véh,11.957,7.386,38.2
+2020-05-17,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,4.041,2.535,37.3
+2020-05-17,avg_speed_kmh,Vitesse moyenne,km/h,34.233,36.236,5.9
+2020-05-17,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.53,0.615,-16.0
+2020-05-17,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,146.059,141.516,3.1
+2020-05-18,avg_wait_s,Temps d'attente moyen,s/véh,11.698,7.308,37.5
+2020-05-18,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,4.256,2.701,36.5
+2020-05-18,avg_speed_kmh,Vitesse moyenne,km/h,34.289,36.319,5.9
+2020-05-18,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.532,0.588,-10.5
+2020-05-18,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,147.925,142.775,3.5
+2020-05-19,avg_wait_s,Temps d'attente moyen,s/véh,12.418,8.094,34.8
+2020-05-19,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,4.901,3.23,34.1
+2020-05-19,avg_speed_kmh,Vitesse moyenne,km/h,33.69,35.558,5.5
+2020-05-19,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.553,0.619,-11.9
+2020-05-19,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,149.959,145.299,3.1
+2020-05-20,avg_wait_s,Temps d'attente moyen,s/véh,12.224,8.35,31.7
+2020-05-20,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,4.859,3.353,31.0
+2020-05-20,avg_speed_kmh,Vitesse moyenne,km/h,33.802,35.4,4.7
+2020-05-20,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.548,0.63,-15.0
+2020-05-20,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,149.378,145.606,2.5
+2020-05-21,avg_wait_s,Temps d'attente moyen,s/véh,11.913,7.626,36.0
+2020-05-21,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,4.653,3.009,35.3
+2020-05-21,avg_speed_kmh,Vitesse moyenne,km/h,34.042,35.95,5.6
+2020-05-21,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.541,0.599,-10.7
+2020-05-21,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,149.509,144.889,3.1
+2020-05-22,avg_wait_s,Temps d'attente moyen,s/véh,12.106,8.135,32.8
+2020-05-22,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,5.008,3.389,32.3
+2020-05-22,avg_speed_kmh,Vitesse moyenne,km/h,33.793,35.482,5.0
+2020-05-22,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.554,0.625,-12.8
+2020-05-22,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,151.446,147.243,2.8
+2020-05-23,avg_wait_s,Temps d'attente moyen,s/véh,12.505,8.398,32.8
+2020-05-23,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,4.872,3.304,32.2
+2020-05-23,avg_speed_kmh,Vitesse moyenne,km/h,33.645,35.332,5.0
+2020-05-23,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.556,0.644,-15.9
+2020-05-23,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,149.96,145.933,2.7
+2020-05-24,avg_wait_s,Temps d'attente moyen,s/véh,12.041,7.625,36.7
+2020-05-24,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,4.335,2.778,35.9
+2020-05-24,avg_speed_kmh,Vitesse moyenne,km/h,34.045,35.943,5.6
+2020-05-24,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.54,0.624,-15.6
+2020-05-24,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,147.552,143.345,2.9
+2020-05-25,avg_wait_s,Temps d'attente moyen,s/véh,11.824,7.352,37.8
+2020-05-25,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,4.201,2.633,37.3
+2020-05-25,avg_speed_kmh,Vitesse moyenne,km/h,34.232,36.211,5.8
+2020-05-25,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.534,0.608,-13.8
+2020-05-25,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,147.48,142.807,3.2
+2020-05-26,avg_wait_s,Temps d'attente moyen,s/véh,13.06,8.481,35.1
+2020-05-26,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,5.236,3.429,34.5
+2020-05-26,avg_speed_kmh,Vitesse moyenne,km/h,33.277,35.206,5.8
+2020-05-26,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.574,0.648,-12.7
+2020-05-26,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,151.53,146.449,3.4
+2020-05-27,avg_wait_s,Temps d'attente moyen,s/véh,12.357,8.178,33.8
+2020-05-27,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,4.936,3.302,33.1
+2020-05-27,avg_speed_kmh,Vitesse moyenne,km/h,33.673,35.507,5.4
+2020-05-27,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.555,0.625,-12.7
+2020-05-27,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,150.485,145.676,3.2
+2020-05-28,avg_wait_s,Temps d'attente moyen,s/véh,12.347,8.058,34.7
+2020-05-28,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,4.995,3.279,34.4
+2020-05-28,avg_speed_kmh,Vitesse moyenne,km/h,33.684,35.536,5.5
+2020-05-28,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.556,0.625,-12.5
+2020-05-28,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,150.795,146.065,3.1
+2020-05-29,avg_wait_s,Temps d'attente moyen,s/véh,12.636,8.652,31.5
+2020-05-29,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,5.374,3.708,31.0
+2020-05-29,avg_speed_kmh,Vitesse moyenne,km/h,33.42,35.062,4.9
+2020-05-29,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.564,0.641,-13.6
+2020-05-29,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,151.098,147.19,2.6
+2020-05-30,avg_wait_s,Temps d'attente moyen,s/véh,13.208,9.464,28.3
+2020-05-30,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,5.157,3.7,28.3
+2020-05-30,avg_speed_kmh,Vitesse moyenne,km/h,33.257,34.648,4.2
+2020-05-30,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.564,0.664,-17.7
+2020-05-30,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,151.022,147.867,2.1
+2020-05-31,avg_wait_s,Temps d'attente moyen,s/véh,11.877,7.576,36.2
+2020-05-31,avg_queue_veh,Longueur moyenne des files,véh à l'arrêt,3.799,2.467,35.1
+2020-05-31,avg_speed_kmh,Vitesse moyenne,km/h,34.332,36.2,5.4
+2020-05-31,stops_per_veh,Nombre moyen d'arrêts,arrêts/véh,0.522,0.606,-16.1
+2020-05-31,co2_g_per_veh,Émissions de CO2 (optionnel),g/véh,145.212,141.201,2.8
