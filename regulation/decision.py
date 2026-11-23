@@ -1,13 +1,16 @@
 """Module de décision : transforme le trafic prévu en durées de vert.
 
-Logique (méthode de Webster simplifiée) :
-  1. le débit prévu est mis à l'échelle du carrefour fictif ;
-  2. il est réparti entre l'axe principal (N-S) et l'axe secondaire (E-O) ;
-  3. la durée du cycle dépend de la charge (court si peu de trafic, long si
-     saturé) ;
-  4. le vert est réparti proportionnellement à la demande de chaque axe, borné
-     entre un minimum et un maximum de sécurité ;
-  5. un temps de dégagement fixe (jaune + tout-rouge) suit chaque vert.
+Logique (minimisation du retard estimé, bornée), pour le carrefour fictif sur un axe :
+  1. le débit prévu est mis à l'échelle de l'axe principal (véh/h) ;
+  2. on en déduit la demande de la rue latérale (selon l'heure), majorée d'une
+     marge de prudence SIDE_SAFETY (le contrôleur ne la mesure pas) ;
+  3. on cherche le cycle et le partage du vert qui minimisent le retard total
+     estimé (formule du retard uniforme du HCM), avec un facteur de progression
+     sur l'axe principal (onde verte) ;
+  4. les verts restent toujours entre un minimum et un maximum de sécurité ;
+  5. un temps de dégagement fixe (jaune + tout-rouge) suit chaque vert ;
+  6. (si N_JUNCTIONS > 1) les carrefours appliquent le même plan, décalé de
+     OFFSET_S secondes de l'un à l'autre (onde verte sur l'axe principal).
 """
 import math
 
@@ -15,12 +18,12 @@ from . import config as cfg
 
 
 def scale_demand_vph(flow_5min):
-    """Débit du dataset (véh / 5 min) -> demande du carrefour fictif (véh/h)."""
-    return flow_5min / cfg.FLOW_REF * cfg.PEAK_TOTAL_VPH
+    """Débit du dataset (véh / 5 min) -> demande de l'axe principal (véh/h)."""
+    return flow_5min / cfg.FLOW_REF * cfg.PEAK_MAIN_VPH
 
 
 def expected_share_main(hour, minute=0):
-    """Part prévue de la demande sur l'axe principal selon l'heure (hypothèse)."""
+    """Part de l'axe principal dans la demande d'un carrefour (axe + rue latérale), selon l'heure (hypothèse)."""
     h = hour + minute / 60.0
     return cfg.SHARE_MEAN + cfg.SHARE_AMP * math.cos(
         2 * math.pi * (h - cfg.SHARE_PEAK_HOUR) / 24.0)
@@ -40,29 +43,50 @@ def congestion_level(flow_5min):
 
 
 def _flow_ratios(predicted_flow, hour, minute):
-    q_total = scale_demand_vph(max(float(predicted_flow), 0.0))
+    q_main = scale_demand_vph(max(float(predicted_flow), 0.0))
     share = expected_share_main(hour, minute)
-    y_main = q_total * share / cfg.SAT_FLOW_AXIS_VPH
-    y_sec = q_total * (1.0 - share) / cfg.SAT_FLOW_AXIS_VPH
-    return y_main, y_sec
+    q_side = q_main * (1.0 - share) / share          # rue latérale d'un carrefour
+    return q_main / cfg.SAT_MAIN_VPH, q_side / cfg.SAT_SIDE_VPH
+
+
+def _delay_s(q, g, cycle, sat, pf=1.0):
+    """Retard moyen par véhicule (s) pour un mouvement : retard uniforme
+    (formule du Highway Capacity Manual) + retard de saturation."""
+    lam = g / cycle
+    cap = sat * lam                                    # capacité (véh/h)
+    x = q / cap if cap > 0 else 9.9                    # degré de saturation
+    d1 = 0.5 * cycle * (1 - lam) ** 2 / (1 - min(x, 1.0) * lam)
+    t = 0.25                                           # période d'analyse (h)
+    d2 = 900 * t * ((x - 1) + math.sqrt((x - 1) ** 2 + 4 * x / (cap * t))) if cap > 0 else 0.0
+    return pf * d1 + d2
 
 
 def decide_green(predicted_flow, hour, minute=0):
-    """Retourne (vert_principal, vert_secondaire) en secondes entières."""
-    y_main, y_sec = _flow_ratios(predicted_flow, hour, minute)
-    y_tot = y_main + y_sec
+    """Retourne (vert axe principal, vert rues latérales) en secondes entières.
+
+    On teste tous les cycles (par pas de 5 s) et tous les partages du vert
+    admis par les bornes de sécurité, et on garde celui qui minimise le retard
+    total estimé : somme, sur l'axe et sur la rue latérale, du débit multiplié
+    par le retard moyen. Sur l'axe, le retard uniforme est réduit par un facteur
+    de progression (onde verte) PROGRESSION_FACTOR.
+    """
+    q_main = scale_demand_vph(max(float(predicted_flow), 0.0))
+    share = expected_share_main(hour, minute)
+    q_side = q_main * (1.0 - share) / share * cfg.SIDE_SAFETY
     lost = 2 * cfg.CLEARANCE_S
-    cycle = (1.5 * lost + 5.0) / (1.0 - min(y_tot, cfg.Y_MAX))
-    cycle = min(max(cycle, cfg.CYCLE_MIN_S), cfg.CYCLE_MAX_S)
-    g_total = cycle - lost
-    if y_tot > 0:
-        g_main = g_total * y_main / y_tot
-        g_sec = g_total * y_sec / y_tot
-    else:
-        g_main = g_sec = g_total / 2.0
-    g_main = int(round(min(max(g_main, cfg.G_MIN_S), cfg.G_MAX_S)))
-    g_sec = int(round(min(max(g_sec, cfg.G_MIN_S), cfg.G_MAX_S)))
-    return g_main, g_sec
+    best, best_cost = None, float("inf")
+    for cycle in range(cfg.CYCLE_MIN_S, cfg.CYCLE_MAX_S + 1, 5):
+        g_total = cycle - lost
+        lo = max(cfg.G_MIN_S, g_total - cfg.G_MAX_S)
+        hi = min(cfg.G_MAX_S, g_total - cfg.G_MIN_S)
+        for g_main in range(lo, hi + 1):
+            g_side = g_total - g_main
+            cost = (q_main * _delay_s(q_main, g_main, cycle, cfg.SAT_MAIN_VPH,
+                                      cfg.PROGRESSION_FACTOR)
+                    + q_side * _delay_s(q_side, g_side, cycle, cfg.SAT_SIDE_VPH))
+            if cost < best_cost - 1e-9:
+                best, best_cost = (g_main, g_side), cost
+    return best
 
 
 def predict_green_time(conditions, predictor=None):
@@ -81,7 +105,8 @@ def predict_green_time(conditions, predictor=None):
     Retour
     ------
     dict : predicted_flow, congestion_level, congestion_color, load_ratio,
-           green_main_s, green_secondary_s, clearance_s, cycle_s
+           green_main_s (axe principal), green_secondary_s (rues latérales),
+           clearance_s, cycle_s, offsets_s (décalage de chaque carrefour, en s)
     """
     if "hour" in conditions:
         hour, minute = int(conditions["hour"]), int(conditions.get("minute", 0))
@@ -110,4 +135,5 @@ def predict_green_time(conditions, predictor=None):
         "green_secondary_s": g_sec,
         "clearance_s": cfg.CLEARANCE_S,
         "cycle_s": g_main + g_sec + 2 * cfg.CLEARANCE_S,
+        "offsets_s": [k * cfg.OFFSET_S for k in range(cfg.N_JUNCTIONS)],
     }

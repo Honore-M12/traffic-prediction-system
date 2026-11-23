@@ -1,21 +1,19 @@
 """Convertit le dataset en trafic SUMO (fichier .rou.xml).
 
-Pour chaque intervalle de 5 min, le débit est mis à l'échelle du carrefour,
-réparti entre l'axe principal (N-S) et l'axe secondaire (E-O), puis converti
-en véhicules (arrivées de Poisson, graine fixe). Les deux scénarios (cycle fixe
+Pour chaque intervalle de 5 min, le débit du dataset est mis à l'échelle de
+l'axe principal (véh/h). La demande de la rue latérale de chaque carrefour en
+découle (part de l'axe principal = ``share_main``), puis tout est converti en
+véhicules (arrivées de Poisson, graine fixe). Les deux scénarios (cycle fixe
 et IA) reçoivent exactement le même fichier de trafic.
 """
 import numpy as np
 
 from . import config as cfg
 from .decision import expected_share_main, scale_demand_vph
-
-ROUTES = {"N": ("N_C", "C_S"), "S": ("S_C", "C_N"),
-          "E": ("E_C", "C_W"), "W": ("W_C", "C_E")}
-
+from .network import routes as network_routes
 
 def make_share(df, rng):
-    """Part réelle de la demande sur l'axe principal : tendance horaire + bruit AR(1)."""
+    """Part réelle de l'axe principal dans la demande d'un carrefour : tendance horaire + bruit AR(1)."""
     n = len(df)
     expected = np.array([expected_share_main(h, m)
                          for h, m in zip(df["hour"], df["minute"])])
@@ -31,32 +29,38 @@ def make_share(df, rng):
 def write_routes(df, path, seed=cfg.SEED):
     """Écrit le .rou.xml pour les lignes de ``df`` (pas de 5 min consécutifs).
 
-    Retourne un DataFrame avec la demande réelle (demand_total_vph, share_main).
+    Retourne la demande réelle : demand_total_vph (axe + 3 rues latérales),
+    share_main (part de l'axe dans un carrefour), n_vehicles.
     """
     rng = np.random.default_rng(seed)
     share = make_share(df, rng)
-    q_total = scale_demand_vph(df["traffic_flow"].to_numpy(float))        # véh/h
+    q_main = scale_demand_vph(df["traffic_flow"].to_numpy(float))          # véh/h
+    q_side = q_main * (1.0 - share) / share                                # véh/h, par carrefour
+    nj = cfg.N_JUNCTIONS
 
-    departs = []     # (instant, approche)
-    for i, (q, s) in enumerate(zip(q_total, share)):
+    departs = []     # (instant, itinéraire)
+    for i in range(len(df)):
         t0 = i * cfg.STEP_S
-        lam = {"main": q * s / 3600.0, "sec": q * (1 - s) / 3600.0}
-        for axis, approaches in (("main", "NS"), ("sec", "EW")):
-            counts = rng.poisson(lam[axis], cfg.STEP_S)            # par seconde
+        flows = [("main", q_main[i])]
+        for j in range(1, nj + 1):
+            flows += [(f"N{j}", q_side[i] / 2), (f"S{j}", q_side[i] / 2)]
+        for route, q in flows:
+            counts = rng.poisson(q / 3600.0, cfg.STEP_S)                   # par seconde
             for sec in np.nonzero(counts)[0]:
                 for _ in range(counts[sec]):
-                    departs.append((t0 + sec + rng.random(), approaches[rng.integers(2)]))
+                    departs.append((t0 + sec + rng.random(), route))
     departs.sort()
 
     lines = ['<routes>',
              '  <vType id="car" vClass="passenger" length="5" minGap="2.5" '
              f'maxSpeed="{cfg.SPEED_LIMIT_MS:.3f}" accel="2.6" decel="4.5" tau="1.0"/>']
-    for a, (e1, e2) in ROUTES.items():
-        lines.append(f'  <route id="r{a}" edges="{e1} {e2}"/>')
-    for k, (t, a) in enumerate(departs):
-        lines.append(f'  <vehicle id="v{k}" type="car" route="r{a}" depart="{t:.2f}" '
+    for name, edges in network_routes().items():
+        lines.append(f'  <route id="r{name}" edges="{" ".join(edges)}"/>')
+    for k, (t, r) in enumerate(departs):
+        lines.append(f'  <vehicle id="v{k}" type="car" route="r{r}" depart="{t:.2f}" '
                      'departLane="best" departSpeed="max"/>')
     lines.append("</routes>")
     with open(path, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
-    return {"demand_total_vph": q_total, "share_main": share, "n_vehicles": len(departs)}
+    return {"demand_total_vph": q_main + nj * q_side, "share_main": share,
+            "n_vehicles": len(departs)}

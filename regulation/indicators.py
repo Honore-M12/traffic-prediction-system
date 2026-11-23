@@ -40,8 +40,8 @@ def interval_metrics(trips, queue_samples, cycles, n_steps):
 
     trips          : DataFrame de read_tripinfo (véhicules rattachés à leur
                      intervalle de départ prévu)
-    queue_samples  : liste (instant, véhicules à l'arrêt sur les 4 approches)
-    cycles         : liste (instant, vert_principal, vert_secondaire)
+    queue_samples  : liste (instant, véhicules à l'arrêt sur les approches du carrefour (axe et rues latérales))
+    cycles         : liste (instant, vert axe principal, vert rues latérales)
     """
     idx = np.arange(n_steps)
     t = trips.copy()
