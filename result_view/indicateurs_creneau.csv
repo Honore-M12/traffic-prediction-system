@@ -1,6 +1,6 @@
 indicateur,unité,cycle fixe,IA,gain %
-Temps d'attente moyen,s/véh,15.044,9.453,37.2
-Longueur moyenne des files,véh à l'arrêt,9.917,6.416,35.3
-Vitesse moyenne,km/h,35.097,36.865,5.0
-Nombre moyen d'arrêts,arrêts/véh,0.604,0.678,-12.4
-Émissions de CO2 (optionnel),g/véh,223.432,217.072,2.8
+Temps d'attente moyen,s/véh,10.957,6.321,42.3
+Longueur moyenne des files,véh à l'arrêt,5.049,2.949,41.6
+Vitesse moyenne,km/h,34.537,36.827,6.6
+Nombre moyen d'arrêts,arrêts/véh,0.53,0.552,-4.1
+Émissions de CO2 (optionnel),g/véh,151.444,144.679,4.5
