@@ -1,7 +1,3 @@
-# Environnement virtuel Python
-venv/
-.venv/
-
-# Fichiers temporaires Python et Jupyter
+sumo_scenario/runs/
 __pycache__/
-.ipynb_checkpoints/
+*.pyc
