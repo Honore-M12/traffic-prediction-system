@@ -313,13 +313,19 @@ python -m regulation.run_sumo --data data/processed/test.csv --predictor model -
 
 Variantes : `--days 2020-05-19` (un jour), `--seed 7`, `--peak-vph 1500` (charge au pic), `--fixed-green 31 --fixed-side-green 14` (autre cycle fixe), `--predictor persistence` (sans modèle), `--out-dir dossier` (autre dossier de sortie).
 
-### 9.4 Voir la simulation dans sumo-gui
+### 9.4 Voir l'impact de l'IA pendant la simulation (sumo-gui)
 
 ```powershell
-python -m regulation.visualiser --data data/processed/test.csv --day 2020-05-19 --window 07:30-09:00 --scenario both --predictor model --model-info models/model_info.json --screenshots 5
+python -m regulation.visualiser --data data/processed/test.csv --day 2020-05-19 --window 07:30-09:00 --predictor model --model-info models/model_info.json --screenshots 5
 ```
 
-Le cycle fixe (véhicules **jaunes**) passe d'abord, puis la régulation IA (véhicules **bleus**), sur le même trafic. Chaque début de cycle s'affiche dans PowerShell, et les indicateurs du créneau sont écrits dans `results_view/indicateurs_creneau.csv`. Pour une démonstration, choisir un créneau du matin ou de la nuit : à 07:30-08:00 le gain est de l'ordre de 47 %, alors qu'il est plus faible en fin d'après-midi.
+Deux fenêtres `sumo-gui` s'ouvrent **côte à côte** et avancent en même temps, sur exactement le même trafic : **à gauche le cycle fixe, à droite la régulation IA**.
+
+- Les véhicules sont colorés selon leur temps d'attente : **vert** = ils roulent, **jaune** = ils attendent environ 15 s, **rouge** = ils attendent 30 s ou plus. Moins de rouge à droite montre l'effet de l'IA.
+- Un compteur en direct s'affiche dans PowerShell chaque minute simulée : file d'attente, attente maximale, cycle choisi par l'IA, et l'écart de file moyenne entre l'IA et le cycle fixe.
+- Les indicateurs du créneau sont écrits dans `results_view/indicateurs_creneau.csv`, et les captures dans `results_view/captures/`.
+
+Options : `--delay 100` (plus lent), `--successif` (les deux scénarios l'un après l'autre dans une seule fenêtre), `--colors scenario` (jaune = fixe, bleu = IA), `--win-width 660` (taille des fenêtres). Pour une démonstration, choisir un créneau du matin ou de la nuit : à 07:30-08:00 le gain est de l'ordre de 40 %, alors qu'il est plus faible en fin d'après-midi.
 
 ---
 
