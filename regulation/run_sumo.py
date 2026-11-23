@@ -48,15 +48,24 @@ SAMPLE_EVERY_S = 5                         # échantillonnage des files
 FLUSH_MAX_S = 3600                         # vidage du réseau après la fenêtre
 
 
-def run_window(net_file, routes_file, tripinfo_file, n_steps, plan, seed, gui=False,
-               extra_cmd=(), on_step=None, record_states=None):
-    """Une simulation SUMO complète. ``plan(i)`` donne (vert axe principal, vert rues
-    latérales) pour un cycle qui démarre pendant l'intervalle de 5 min numéro ``i``.
+def iter_window(net_file, routes_file, tripinfo_file, n_steps, plan, seed, gui=False,
+                extra_cmd=(), on_step=None, record_states=None, label="default"):
+    """Générateur : une simulation SUMO complète, qui rend la main après chaque
+    seconde simulée (``yield`` de l'instant). La valeur de retour (levée par
+    ``StopIteration``) est (trajets, files d'attente, cycles).
+
+    Il permet de faire avancer deux simulations en même temps, seconde par
+    seconde (mode côte à côte de visualiser.py) : chaque simulation a sa propre
+    connexion TraCI, identifiée par ``label``.
+
+    ``plan(i)`` donne (vert axe principal, vert rues latérales) pour un cycle qui
+    démarre pendant l'intervalle de 5 min numéro ``i``.
 
     Contrôle des feux (TraCI) : le premier carrefour (J1) suit le plan ; s'il y
     en a d'autres (N_JUNCTIONS > 1), ils rejouent exactement son programme avec
-    un retard de OFFSET_S secondes par carrefour (onde verte). Chaque changement de phase est planifié
-    à la seconde près (setPhase + durée), donc les durées obtenues sont exactes.
+    un retard de OFFSET_S secondes par carrefour (onde verte). Chaque changement
+    de phase est planifié à la seconde près (setPhase + durée), donc les durées
+    obtenues sont exactes.
 
     ``on_step(t, cycle_started, current)`` (facultatif) est appelé à chaque seconde
     simulée ; utilisé par le mode visualisation (regulation/visualiser.py).
@@ -71,7 +80,7 @@ def run_window(net_file, routes_file, tripinfo_file, n_steps, plan, seed, gui=Fa
     if gui:
         cmd += ["--start", "true", "--quit-on-end", "true"]
     cmd += [str(a) for a in extra_cmd]
-    traci.start(cmd)
+    traci.start(cmd, label=label)
     edges = incoming_edges()
     horizon = n_steps * cfg.STEP_S
     queue_samples, cycles = [], []
@@ -97,6 +106,7 @@ def run_window(net_file, routes_file, tripinfo_file, n_steps, plan, seed, gui=Fa
             traci.trafficlight.setPhase(tls, 3)
             traci.trafficlight.setPhaseDuration(tls, 10 * 3600)
         while True:
+            traci.switch(label)
             t = int(traci.simulation.getTime())
             cycle_started = False
             if t >= next_start:                        # début d'un cycle : décision
@@ -119,6 +129,8 @@ def run_window(net_file, routes_file, tripinfo_file, n_steps, plan, seed, gui=Fa
                     (t, sum(traci.edge.getLastStepHaltingNumber(e) for e in edges)))
             traci.simulationStep()
             t = int(traci.simulation.getTime())
+            yield t
+            traci.switch(label)
             if t > horizon and traci.simulation.getMinExpectedNumber() == 0:
                 break
             if t > horizon + FLUSH_MAX_S:
@@ -126,10 +138,21 @@ def run_window(net_file, routes_file, tripinfo_file, n_steps, plan, seed, gui=Fa
                 break
     finally:
         try:
+            traci.switch(label)
             traci.close()
         except Exception:        # fenêtre déjà fermée par l'utilisateur
             pass
     return read_tripinfo(tripinfo_file), queue_samples, cycles
+
+
+def run_window(*args, **kwargs):
+    """Lance une simulation complète d'un coup (voir ``iter_window``)."""
+    gen = iter_window(*args, **kwargs)
+    try:
+        while True:
+            next(gen)
+    except StopIteration as stop:
+        return stop.value
 
 
 def select_windows(df, days_arg):
