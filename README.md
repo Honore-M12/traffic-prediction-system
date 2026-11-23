@@ -122,11 +122,16 @@ Les véhicules sont rattachés à l'intervalle de 5 min où ils devaient partir.
 
 ## Visualiser la simulation dans sumo-gui
 
-`run_sumo.py` lance SUMO sans fenêtre (plus rapide). Pour **voir** l'axe, par exemple pour la soutenance, `visualiser.py` simule un créneau court dans `sumo-gui` : d'abord le cycle fixe, puis la régulation IA, sur exactement le même trafic.
+`run_sumo.py` lance SUMO sans fenêtre (plus rapide). Pour **voir l'impact de l'IA pendant la simulation**, `visualiser.py` simule un créneau court dans `sumo-gui` : **deux fenêtres côte à côte** avancent en même temps sur exactement le même trafic.
 
 ```powershell
 python -m regulation.visualiser --data data/processed/test.csv --predictor model --model-info models/model_info.json
 ```
+
+- **Fenêtre de gauche : cycle fixe. Fenêtre de droite : régulation IA.**
+- Les véhicules sont colorés selon leur temps d'attente (même code dans les deux fenêtres) : **vert** = ils roulent, **jaune** = ils attendent environ 15 s, **rouge** = ils attendent 30 s ou plus. Moins de rouge à droite = l'IA agit.
+- Un **compteur en direct** s'affiche dans le terminal chaque minute simulée : file d'attente, attente maximale, cycle de l'IA, et l'écart de file moyenne entre l'IA et le cycle fixe.
+- Un tableau d'indicateurs du créneau est écrit à la fin dans `results_view/indicateurs_creneau.csv`.
 
 Par défaut : mardi 19 mai 2020, créneau 07:30-09:00, précédé de 30 minutes de mise en route pour que l'axe soit déjà chargé.
 
@@ -134,16 +139,18 @@ Par défaut : mardi 19 mai 2020, créneau 07:30-09:00, précédé de 30 minutes 
 |---|---|
 | `--window 17:00-18:30` | créneau à regarder (HH:MM-HH:MM, par pas de 5 min) |
 | `--day 2020-05-23` | journée |
-| `--scenario fixed` ou `ai` | un seul scénario au lieu des deux |
-| `--delay 40` | ralenti, en millisecondes par seconde simulée (0 = pleine vitesse) |
-| `--screenshots 10` | enregistre une capture toutes les 10 minutes simulées dans `results_view/captures/` |
-| `--warmup 30` | minutes de mise en route avant le créneau, sans ralenti |
-| `--focus J1` | zoom sur un carrefour (utile seulement si `N_JUNCTIONS` > 1) ; par défaut le carrefour est vu de près |
+| `--delay 100` | ralenti, en millisecondes par seconde simulée (défaut 40 ; 0 = pleine vitesse) |
+| `--successif` | les deux scénarios l'un après l'autre dans une seule fenêtre (véhicules jaunes puis bleus) |
+| `--colors scenario` | couleur par scénario (jaune = cycle fixe, bleu = IA) au lieu de la couleur d'attente |
+| `--scenario fixed` ou `ai` | un seul scénario, dans une seule fenêtre |
+| `--win-width 660 --win-height 620` | taille de chaque fenêtre (deux fenêtres de 660 px tiennent sur un écran de 1366 px) |
+| `--report-every 60` | secondes simulées entre deux lignes du compteur en direct |
+| `--screenshots 5` | enregistre une capture toutes les 5 minutes simulées dans `results_view/captures/` |
+| `--warmup 30` | minutes de mise en route avant le créneau |
+| `--focus J1` | zoom sur un carrefour (utile seulement si `N_JUNCTIONS` > 1) |
 | `--headless` | sans fenêtre (pour tester) |
 
-**Ce qu'on voit** : l'axe principal horizontal (circulation de gauche à droite), le carrefour au centre et la rue latérale qui le croise en haut et en bas. Les **véhicules jaunes** sont ceux du cycle fixe, les **véhicules bleus** ceux de la régulation IA. À chaque ligne d'arrêt, un trait **vert ou rouge** indique l'état du feu. Dans le terminal, chaque début de cycle affiche l'heure, les verts choisis et la durée du cycle (toujours 56 s / 24 s / 90 s en cycle fixe).
-
-À la fin, un tableau d'indicateurs du créneau (mise en route exclue) est écrit dans `results_view/indicateurs_creneau.csv`. Ces chiffres illustrent la simulation sur 1 h 30 ; la mesure officielle reste celle de `run_sumo.py`, sur des journées complètes. Il ne faut pas fermer la fenêtre avant la fin : le programme s'arrête alors proprement, sans résultats.
+Les chiffres du créneau illustrent la simulation sur un créneau court ; la mesure officielle reste celle de `run_sumo.py`, sur des journées complètes. Il ne faut pas fermer les fenêtres avant la fin : le programme s'arrête alors proprement, sans résultats. Les deux fenêtres sont placées côte à côte en haut de l'écran ; si elles se chevauchent, réduire `--win-width`.
 
 ## Hypothèses
 
@@ -241,7 +248,7 @@ regulation/
     network.py         construction du réseau SUMO (axe, carrefour à feux, rue latérale)
     demand.py          dataset -> véhicules SUMO
     run_sumo.py        simulation fixe vs IA (TraCI), écriture des CSV
-    visualiser.py      mode visualisation dans sumo-gui (créneau court, captures, zoom)
+    visualiser.py      visualisation dans sumo-gui : deux fenêtres côte à côte (fixe / IA), compteur en direct
     indicators.py      calcul des indicateurs
     check_model.py     vérification du modèle rechargé
 src/                   dossier de Joel (features.py), non inclus ici, requis par le .pkl
